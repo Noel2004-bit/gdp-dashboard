@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0d1117">
+<title>Trading App - WELLE 3 SCANNER</title>
+<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#0d1117;color:white;font-family:-apple-system,system-ui,sans-serif;padding:16px;padding-bottom:40px}
+h1{font-size:21px;text-align:center;margin:8px 0}
+.sub{text-align:center;color:#888;font-size:13px;margin-bottom:12px}
+.card{background:#161b22;border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #21262d}
+.row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+button{flex:1;padding:13px 6px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;min-width:60px}
+.btn-coin{background:#333;color:white}
+.btn-coin.active{outline:3px solid #1f6feb;background:#1f6feb;color:#fff}
+.btn-tf{background:#333;color:white;padding:12px;font-size:14px}
+.btn-tf.active{background:#238636;color:#fff}
+.btn-go{background:#1f6feb;color:#fff;width:100%;padding:16px;border-radius:12px;font-size:17px;font-weight:800}
+.btn-scan{background:#22c55e;color:#000;width:100%;padding:18px;border-radius:14px;font-size:18px;font-weight:900}
+input{width:100%;background:#0d1117;border:1px solid #333;color:white;padding:12px;border-radius:10px;font-size:16px;margin-top:6px}
+label{font-size:13px;color:#aaa}
+.big{font-size:36px;font-weight:800;text-align:center}
+.green{color:#22c55e}.yellow{color:#facc15}.red{color:#ef4444}
+.fibrow{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #222;font-size:15px}
+.here{background:#facc15;color:#000;border-radius:8px;padding:2px 8px;font-size:12px;font-weight:700}
+.small{font-size:12px;color:#888;text-align:center;margin-top:10px}
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700}
+.badge-red{background:#ef4444;color:white}.badge-yellow{background:#facc15;color:#000}.badge-green{background:#22c55e;color:#000}
+.rsi-bar{height:12px;background:#333;border-radius:6px;overflow:hidden;margin:6px 0}
+.rsi-fill{height:100%;border-radius:6px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td{padding:8px 0;border-bottom:1px solid #222}
+.plan{background:#0d1117;border:1px solid #1f6feb;border-radius:12px;padding:12px;margin-top:10px}
+.tv-frame{width:100%;height:420px;border:none;border-radius:12px;background:#131722}
+.tv-wrap{border-radius:12px;overflow:hidden;background:#131722}
+.rsi-box{background:#0d1117;border:1px solid #30363d;border-radius:12px;padding:12px}
+.rsi-big{font-size:42px;font-weight:800;text-align:center}
+.verified{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:8px;font-size:12px;margin-top:8px}
+.coin-info{background:#0d1117;border-radius:10px;padding:10px;font-size:12px;color:#aaa;margin-top:8px}
+.check-box{background:#0d1117;border:1px solid #333;border-radius:10px;padding:10px;margin-top:8px;font-size:13px}
+.block-box{border-radius:10px;padding:10px;text-align:center;font-weight:800;margin-bottom:12px}
+#autoFiboChart{width:100%;height:380px;border-radius:12px;overflow:hidden;background:#0d1117}
+.fibo-golden{background:#f9731622;border:1px solid #f97316;border-radius:10px;padding:10px;margin-top:10px;font-size:13px}
+.abc-box{background:#1e1b4b;border:1px solid #3b82f6;border-radius:10px;padding:10px;margin-top:10px;font-size:13px}
+.elliott-box{background:#052e16;border:1px solid #22c55e;border-radius:10px;padding:10px;margin-top:10px;font-size:13px}
+.usdt-box-bull{background:#052e16;border:2px solid #22c55e;border-radius:14px;padding:14px;text-align:center}
+.usdt-box-bear{background:#450a0a;border:2px solid #ef4444;border-radius:14px;padding:14px;text-align:center}
+.usdt-box-neutral{background:#422006;border:2px solid #facc15;border-radius:14px;padding:14px;text-align:center}
+.ls-box{border-radius:16px;padding:18px;text-align:center;margin-bottom:12px;border:3px solid #333}
+.ls-long{background:#052e16;border-color:#22c55e}.ls-short{background:#450a0a;border-color:#ef4444}.ls-wait{background:#422006;border-color:#facc15}
+.ls-big{font-size:52px;font-weight:900;line-height:1}.ls-sub{font-size:15px;font-weight:700;margin-top:6px}
+.ls-levels{display:flex;gap:8px;margin-top:12px}.ls-level{flex:1;background:#0d1117;border-radius:10px;padding:10px;font-size:13px}
+.full-box{background:#0d1117;border:1px solid #22c55e;border-radius:10px;padding:10px;margin-top:10px;font-size:13px}
+.btn-chart{background:#333;color:#fff;font-size:13px;padding:10px}.btn-chart.active{background:#22c55e;color:#000}
+.wave-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #222;font-size:14px}
+.dom-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #222;font-size:14px}
+.dom-bar{height:10px;background:#333;border-radius:5px;overflow:hidden;margin:4px 0}.dom-fill{height:100%;border-radius:5px}
+.debug-box{background:#000;border:1px solid #facc15;border-radius:10px;padding:10px;font-size:12px;font-family:monospace;white-space:pre-wrap;max-height:150px;overflow:auto}
+.scan-green{background:#052e16;border:2px solid #22c55e;border-radius:12px;padding:12px;margin-bottom:8px}
+.scan-yellow{background:#422006;border:2px solid #facc15;border-radius:12px;padding:12px;margin-bottom:8px}
+.scan-red{background:#450a0a;border:2px solid #ef4444;border-radius:12px;padding:12px;margin-bottom:8px}
+.scan-gray{background:#0d1117;border:1px solid #333;border-radius:12px;padding:12px;margin-bottom:8px}
+</style>
+</head>
+<body>
+<h1>📈 LTC • KSM • XRP • XLM • SHX • ZEC</h1>
+<div class="sub">WELLE 3 SCANNER + Dominanz + Elliott + ABC + 1W + 1M</div>
+
+<!-- NEU: WELLE 3 SCANNER -->
+<div class="card" style="border:2px solid #22c55e">
+<h3 style="margin:0 0 8px">🔍 WELLE 3 SCANNER - Alle Coins</h3>
+<div style="font-size:12px;color:#aaa;margin-bottom:10px">Scannt 14 Coins auf 1D + 1W. Nur wenn BEIDE Welle 3 HOCH sagen, ist es ein echter Welle-3-Coin.</div>
+<button class="btn-scan" onclick="scanWave3Coins()">🔍 SCANNE ALLE WELLE-3-COINS</button>
+<div id="wave3Scan" style="margin-top:12px;font-size:13px;color:#aaa">Noch nicht gescannt. Tippe auf den grünen Knopf oben. Dauert ca. 20-30 Sekunden, weil 14 Coins x 2 Timeframes geladen werden.</div>
+<div id="wave3ScanTime" style="font-size:12px;color:#888;margin-top:6px"></div>
+</div>
+
+<div id="longShortBox" class="ls-box ls-wait">
+<div style="font-size:13px;color:#aaa">👉 DEINE ENTSCHEIDUNG - <span id="lsLabel">KSM 1D</span></div>
+<div id="lsBig" class="ls-big">⏳<br><span style="font-size:24px">LADEN...</span></div>
+<div id="lsSub" class="ls-sub">App lädt Daten...</div>
+<div id="lsGrund" style="font-size:13px;color:#ccc;margin-top:8px"></div>
+<div class="ls-levels">
+<div class="ls-level">🎯 EINTRITT<br><b id="lsEntry" style="font-size:16px">--</b></div>
+<div class="ls-level">🛑 STOP<br><b id="lsStop" style="font-size:16px;color:#ef4444">--</b></div>
+<div class="ls-level">✅ ZIEL<br><b id="lsTarget" style="font-size:16px;color:#22c55e">--</b></div>
+</div>
+<div id="lsChance" style="font-size:12px;color:#aaa;margin-top:8px"></div>
+</div>
+
+<div class="card">
+<h3 style="margin:0 0 8px">🔧 DEBUG</h3>
+<div id="debugBox" class="debug-box">Starte...</div>
+<button class="btn-go" style="margin-top:10px;background:#facc15;color:#000" onclick="testAlleQuellen()">🔧 ALLE QUELLEN TESTEN</button>
+</div>
+
+<div class="card">
+<h3 style="margin:0 0 8px">🌍 Krypto Markt Dominanz</h3>
+<div style="font-size:12px;color:#aaa;text-align:center;margin-bottom:10px">Total Market Cap: <b id="totalMcap" style="color:white">--</b> | 24h Volumen: <b id="totalVol" style="color:white">--</b></div>
+<div class="dom-row"><span>₿ <b>BTC Dominanz</b></span><span><b id="btcDomVal" style="font-size:18px">-- %</b> <span id="btcDomTrend"></span></span></div>
+<div class="dom-bar"><div id="btcDomBar" class="dom-fill" style="width:50%;background:#f7931a"></div></div>
+<div id="btcDomFazit" style="font-size:12px;color:#aaa;margin-bottom:10px"></div>
+<div class="dom-row"><span>Ξ <b>ETH Dominanz</b></span><span><b id="ethDomVal" style="font-size:18px">-- %</b> <span id="ethDomTrend"></span></span></div>
+<div class="dom-bar"><div id="ethDomBar" class="dom-fill" style="width:15%;background:#627eea"></div></div>
+<div id="ethDomFazit" style="font-size:12px;color:#aaa;margin-bottom:10px"></div>
+<div class="dom-row"><span>💵 <b>USDT Dominanz</b></span><span><b id="usdtDomVal" style="font-size:18px">-- %</b> <span id="usdtDomTrend"></span></span></div>
+<div class="dom-bar"><div id="usdtDomBar" class="dom-fill" style="width:5%;background:#26a17b"></div></div>
+<div id="usdtDomFazit" style="font-size:12px;color:#aaa;margin-bottom:10px"></div>
+<div class="dom-row"><span>🪙 <b>Altcoins Dominanz</b></span><span><b id="altDomVal" style="font-size:18px">-- %</b> <span id="altDomTrend"></span></span></div>
+<div class="dom-bar"><div id="altDomBar" class="dom-fill" style="width:25%;background:#22c55e"></div></div>
+<div id="altDomFazit" style="font-size:12px;color:#aaa;margin-bottom:10px"></div>
+<div id="usdtBox" class="usdt-box-neutral" style="margin-top:12px">
+<div style="font-size:13px;color:#aaa">USDT SIGNAL FÜR BTC</div>
+<div id="usdtSignal" style="font-size:16px;font-weight:800;margin-top:6px">⏳ Lade...</div>
+<div id="usdtTrend" style="font-size:13px;color:#ccc;margin-top:6px"></div>
+<div id="usdtBtcFazit" style="font-size:13px;margin-top:8px"></div>
+</div>
+<div id="domComboBox" style="margin-top:12px;background:#0d1117;border:1px solid #333;border-radius:10px;padding:10px;font-size:13px">⏳ Lade Dominanz-Kombi...</div>
+<div id="usdtHistory" style="font-size:12px;color:#aaa;margin-top:8px;text-align:center"></div>
+</div>
+
+<div class="card">
+<div class="rsi-box">
+<div style="text-align:center;font-size:13px;color:#aaa">ECHTER RSI (14) - <span id="rsiLabel">1D - KSM</span></div>
+<div class="rsi-big" id="rsiBig">--</div>
+<div style="text-align:center"><span id="rsiBadge"></span></div>
+<div class="rsi-bar"><div id="rsiBarFill" class="rsi-fill" style="width:50%;background:#facc15"></div></div>
+<div style="display:flex;justify-content:space-between;font-size:11px;color:#888"><span>0 Überverkauft</span><span>30</span><span>50</span><span>70</span><span>100 Überkauft</span></div>
+<div class="verified" id="rsiVerified">⏳ Prüfe RSI...</div>
+<div id="quellenDetail" style="margin-top:10px"></div>
+</div>
+</div>
+
+<div class="card">
+<h3 style="margin:0 0 8px">🪙 Coin wählen</h3>
+<div class="row">
+<button id="bLTC" class="btn-coin" onclick="setCoin('LTC')">LTC</button>
+<button id="bKSM" class="btn-coin active" onclick="setCoin('KSM')">KSM</button>
+<button id="bXRP" class="btn-coin" onclick="setCoin('XRP')">XRP</button>
+<button id="bXLM" class="btn-coin" onclick="setCoin('XLM')">XLM</button>
+<button id="bSHX" class="btn-coin" onclick="setCoin('SHX')">SHX</button>
+<button id="bZEC" class="btn-coin" onclick="setCoin('ZEC')">🛡️ ZEC</button>
+</div>
+<div class="row">
+<button id="bLINK" class="btn-coin" onclick="setCoin('LINK')">LINK</button>
+<button id="bADA" class="btn-coin" onclick="setCoin('ADA')">ADA</button>
+<button id="bDOT" class="btn-coin" onclick="setCoin('DOT')">DOT</button>
+<button id="bAVAX" class="btn-coin" onclick="setCoin('AVAX')">AVAX</button>
+<button id="bETH" class="btn-coin" onclick="setCoin('ETH')">ETH</button>
+<button id="bDOGE" class="btn-coin" onclick="setCoin('DOGE')">DOGE</button>
+</div>
+<div class="row">
+<button id="bBTC" class="btn-coin" onclick="setCoin('BTC')">BTC</button>
+<button id="bSOL" class="btn-coin" onclick="setCoin('SOL')">SOL</button>
+</div>
+<div id="coinInfo" class="coin-info"></div>
+<h3 style="margin:12px 0 8px">⏰ Timeframe</h3>
+<div class="row">
+<button id="btn15m" class="btn-tf" onclick="setTimeframe('15m')">⚡ 15 MIN</button>
+<button id="btn1H" class="btn-tf" onclick="setTimeframe('1h')">🕐 1 STUNDE</button>
+<button id="btn1D" class="btn-tf active" onclick="setTimeframe('1d')">📅 1 TAG</button>
+</div>
+<div class="row">
+<button id="btn1W" class="btn-tf" onclick="setTimeframe('1w')">📅 1 WOCHE</button>
+<button id="btn1M" class="btn-tf" onclick="setTimeframe('1M')">📅 1 MONAT</button>
+</div>
+<div id="tfInfo" style="font-size:13px;color:#aaa"></div>
+<div style="font-size:13px;text-align:center;margin-top:10px">Auto-Update: <b id="countdown" style="color:#facc15">30:00</b> • Letztes Update: <span id="lastUpdate">-</span></div>
+<button class="btn-go" style="margin-top:12px" onclick="manuellUpdate()">🔄 JETZT ECHTEN RSI HOLEN</button>
+</div>
+
+<div class="card">
+<h3 style="margin:0 0 8px">🧠 Trading-Score</h3>
+<div style="text-align:center"><span id="scoreBig" style="font-size:48px;font-weight:800">--</span><span style="font-size:20px;color:#888"> / 100</span></div>
+<div style="text-align:center"><span id="scoreBadge"></span></div>
+<div class="rsi-bar"><div id="scoreBar" class="rsi-fill" style="width:50%;background:#facc15"></div></div>
+<div id="scoreDetail" style="font-size:13px;color:#aaa;margin-top:8px">Noch keine Analyse.</div>
+</div>
+
+<div class="card">
+<h3 style="margin:0 0 8px">🌊 Elliott Impulswelle 1-2-3-4-5</h3>
+<div id="elliottBox" style="font-size:14px">⏳ Lade Elliott...</div>
+<div id="elliottDetail" style="font-size:13px;color:#aaa;margin-top:8px"></div>
+<div id="elliottTargets" class="elliott-box">⏳ Lade Elliott-Ziele...</div>
+<div id="elliottRules" style="font-size:12px;color:#888;margin-top:8px"></div>
+</div>
+
+<div class="card">
+<h3 style="margin:0 0 8px">🔤 ABC-Analyse</h3>
+<div id="abcBox" style="font-size:14px">⏳ Lade ABC...</div>
+<div id="abcDetail" style="font-size:13px;color:#aaa;margin-top:8px"></div>
+<div id="abcTargets" class="abc-box">⏳ Lade ABC-Ziele...</div>
+</div>
+
+<div class="card">
+<h3 style="margin:0 0 8px">📐 FULL CHART Auto-Fibo - <span id="fiboChartLabel">1D - KSM</span></h3>
+<div class="row">
+<button id="btnFull" class="btn-chart active" onclick="setChartMode('full')">📐 FULL CHART</button>
+<button id="btnRecent" class="btn-chart" onclick="setChartMode('recent')">🔍 LETZTE 120</button>
+</div>
+<div id="autoFiboChart"></div>
+<div id="fiboSwingInfo" style="font-size:13px;margin-top:8px;color:#aaa">⏳ Lade Swing...</div>
+<div id="fiboFullBox" class="full-box">⏳ Lade FULL Fibo...</div>
+<div id="fiboGoldenBox" class="fibo-golden">⏳ Lade Golden Zone...</div>
+</div>
+
+<div class="card">
+<h3 style="margin:0 0 8px">🔥 Smart Money - Sweep + FVG</h3>
+<div id="smartMoneyBox" style="font-size:14px">⏳ Lade...</div>
+<div id="fvgBox" style="font-size:13px;color:#aaa;margin-top:6px"></div>
+</div>
+
+<div class="card">
+<h3 style="margin:0 0 8px">💰 Funding + Open Interest</h3>
+<div id="fundingBox" style="font-size:14px">⏳ Lade...</div>
+</div>
+
+<div class="card">
+<h3 style="margin:0 0 8px">₿ BTC-Check + 🌍 Dominanz</h3>
+<div id="btcBox" style="font-size:14px">⏳ Lade BTC...</div>
+<div id="btcUsdtCombo" style="font-size:13px;margin-top:8px"></div>
+</div>
+
+<div class="card">
+<label>Preis jetzt</label><input id="preis" type="number" inputmode="decimal">
+<label>RSI (14) - MEDIAN</label><input id="rsi14" type="number" inputmode="decimal" readonly style="color:#facc15;font-weight:800;font-size:18px">
+<label>RSI Bitrue</label><input id="rsiBitrue" type="number" inputmode="decimal" readonly style="color:#58a6ff;font-weight:700">
+<label>RSI Binance</label><input id="rsiBinance" type="number" inputmode="decimal" readonly style="color:#aaa">
+<label>RSI Bybit</label><input id="rsiBybit" type="number" inputmode="decimal" readonly style="color:#aaa">
+<label>RSI Bitget</label><input id="rsiBitget" type="number" inputmode="decimal" readonly style="color:#aaa">
+<label>MACD</label><input id="macd" type="number" inputmode="decimal" readonly style="color:#aaa">
+<label>Swing-Hoch (FULL)</label><input id="autoHoch" type="number" inputmode="decimal" readonly style="color:#22c55e">
+<label>Swing-Tief (FULL)</label><input id="autoTief" type="number" inputmode="decimal" readonly style="color:#ef4444">
+<label>BTC Dominanz</label><input id="btcDomInput" type="text" readonly style="color:#f7931a;font-weight:800">
+<label>ETH Dominanz</label><input id="ethDomInput" type="text" readonly style="color:#627eea;font-weight:700">
+<label>USDT Dominanz</label><input id="usdtInput" type="text" readonly style="color:#26a17b;font-weight:800">
+<label>Altcoins Dominanz</label><input id="altDomInput" type="text" readonly style="color:#22c55e;font-weight:800">
+<label>USDT Signal für BTC</label><input id="usdtSignalInput" type="text" readonly style="color:#22c55e;font-weight:800">
+<label>Dominanz Signal für Altcoins</label><input id="domAltSignalInput" type="text" readonly style="color:#facc15;font-weight:800">
+<label>Long / Short Entscheidung</label><input id="lsInput" type="text" readonly style="color:#facc15;font-weight:800;font-size:16px">
+<label>Elliott Welle jetzt</label><input id="elliottInput" type="text" readonly style="color:#22c55e;font-weight:800">
+<label>Elliott Ziel</label><input id="elliottZielInput" type="text" readonly style="color:#facc15;font-weight:700">
+<label>ABC-Welle jetzt</label><input id="abcInput" type="text" readonly style="color:#3b82f6;font-weight:700">
+<label>ABC-Ziel C</label><input id="abcZielInput" type="text" readonly style="color:#facc15;font-weight:700">
+<label>Volumen-Check</label><input id="volumenInput" type="text" readonly style="color:#aaa">
+<label>RSI-Divergenz</label><input id="divergenzInput" type="text" readonly style="color:#aaa">
+<label>Auto-Fibo Position</label><input id="fiboPosInput" type="text" readonly style="color:#facc15">
+<div id="liveInfo" class="small"></div>
+</div>
+
+<div class="card">
+<label>Dein Einstieg (nur für Gewinn-%)</label><input id="einstieg" type="number" inputmode="decimal">
+<button class="btn-go" style="margin-top:12px" onclick="berechnen()">📊 ANALYSE BERECHNEN</button>
+</div>
+
+<div id="ergebnis"></div>
+
+<div class="card">
+<h3 style="margin:0 0 8px">📊 Live-Chart - <span id="tvLabel">1D - KSM</span></h3>
+<div class="tv-wrap">
+<iframe id="tvFrame" class="tv-frame" src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_123&symbol=BINANCE%3AKSMUSDT&interval=D&hidesidetoolbar=0&hidetoptoolbar=0&symboledit=1&saveimage=1&toolbarbg=&studies=[]&hideideas=1&theme=dark&style=1&timezone=Europe%2FBerlin&locale=de&utm_source=&utm_medium=widget&utm_campaign=chart&utm_term=BINANCE%3AKSMUSDT" allowtransparency="true" scrolling="no" allowfullscreen></iframe>
+</div>
+</div>
+
+<div class="card"><h3 style="margin:0 0 8px">📊 Analyse - <span id="analyseLabel">1D</span></h3><div id="tagesAnalyse"></div></div>
+<div class="card"><h3 style="margin:0 0 8px">Fibonacci - FULL + Swing - <span id="fibLabel">1D</span></h3><div id="fibListe"></div></div>
+<div class="card"><h3 style="margin:0 0 8px">🎯 Trading-Plan - <span id="planLabel">1D</span></h3><div id="tradingPlan"></div></div>
+<div class="card"><h3 style="margin:0 0 8px">🔄 Vergleich Alle Timeframes - 15m vs 1H vs 1D vs 1W vs 1M</h3><div id="vergleich" style="font-size:13px;color:#aaa">Tippe alle 5 Timeframes einmal an.</div><div id="ampel" style="margin-top:10px"></div></div>
+<div class="card"><h3 style="margin:0 0 8px">✅ Checkliste vor dem Trade</h3><div id="checklisteBox" class="check-box">Noch keine Analyse gemacht.</div></div>
+<div class="card"><h3 style="margin:0 0 8px">📊 Alle Coins auf einen Blick</h3><div id="alleCoins" style="font-size:13px;color:#aaa">Tippe auf SCANNEN.</div><button class="btn-go" style="margin-top:10px" onclick="ladeAlleCoins()">🔄 ALLE COINS SCANNEN</button></div>
+
+<script>
+let coin='KSM';
+let timeframe='1d';
+let letzteAnalyse={};
+let alleCoinsRSI={};
+let autoTimer=null;
+let countdownSek=30*60;
+let letzteCloses=[];
+let letztesHoch=0;
+let letztesTief=0;
+let btcSignal='NEUTRAL';
+let btcPreis=0;
+let btcRSI=50;
+let volumenSignal='NEUTRAL';
+let divergenzSignal='KEINE';
+let letztesVolumen=0;
+let fiboData=null;
+let fiboFullData=null;
+let fiboChart=null, fiboCandleSeries=null, fiboLines=[];
+let letzteCandles=[];
+let chartMode='full';
+let sweepSignal='KEIN SWEEP';
+let fvgSignal='KEIN FVG';
+let fundingRate=0;
+let openInterest=0;
+let fundingSignal='NEUTRAL';
+let tradingScore=50;
+let abcData=null;
+let abcSignal='KEIN ABC';
+let elliottData=null;
+let elliottSignal='KEIN ELLIOTT';
+let usdtDominanz=0, usdtDominanzPrev=0, usdtTrend='NEUTRAL', usdtSignal='NEUTRAL', usdtHistory=[], usdtBtcFazit='';
+let btcDominanz=0, btcDominanzPrev=0, btcDomTrend='NEUTRAL';
+let ethDominanz=0, ethDominanzPrev=0, ethDomTrend='NEUTRAL';
+let altDominanz=0, altDomTrend='NEUTRAL', altSignal='NEUTRAL';
+let totalMcap=0, totalVol24h=0;
+let domHistory=[];
+let longShortEntscheidung='WARTEN';
+let lsEntry=0, lsStop=0, lsTarget=0;
+let debugLog=[];
+function logDebug(msg){ debugLog.push(msg); if(debugLog.length>30) debugLog.shift(); let el=document.getElementById('debugBox'); if(el) el.innerText=debugLog.join('\n'); }
+let ALL_COINS=['LTC','KSM','XRP','XLM','SHX','ZEC','LINK','ADA','DOT','AVAX','ETH','DOGE','BTC','SOL'];
+let speicher={};
+ALL_COINS.forEach(c=>{ speicher[c]={'1d':{einstieg:100,preis:100},'1h':{einstieg:100,preis:100},'15m':{einstieg:100,preis:100},'1w':{einstieg:100,preis:100},'1M':{einstieg:100,preis:100}}; });
+speicher['KSM']={'1d':{einstieg:2.60,preis:2.62},'1h':{einstieg:2.60,preis:2.62},'15m':{einstieg:2.60,preis:2.62},'1w':{einstieg:2.60,preis:2.62},'1M':{einstieg:2.60,preis:2.62}};
+speicher['LTC']={'1d':{einstieg:40.10,preis:42.16},'1h':{einstieg:40.10,preis:42.16},'15m':{einstieg:40.10,preis:42.16},'1w':{einstieg:40.10,preis:42.16},'1M':{einstieg:40.10,preis:42.16}};
+speicher['XRP']={'1d':{einstieg:2.00,preis:2.05},'1h':{einstieg:2.00,preis:2.05},'15m':{einstieg:2.00,preis:2.05},'1w':{einstieg:2.00,preis:2.05},'1M':{einstieg:2.00,preis:2.05}};
+speicher['XLM']={'1d':{einstieg:0.13,preis:0.128},'1h':{einstieg:0.13,preis:0.128},'15m':{einstieg:0.13,preis:0.128},'1w':{einstieg:0.13,preis:0.128},'1M':{einstieg:0.13,preis:0.128}};
+speicher['SHX']={'1d':{einstieg:0.012,preis:0.012},'1h':{einstieg:0.012,preis:0.012},'15m':{einstieg:0.012,preis:0.012},'1w':{einstieg:0.012,preis:0.012},'1M':{einstieg:0.012,preis:0.012}};
+speicher['ZEC']={'1d':{einstieg:350,preis:350},'1h':{einstieg:350,preis:350},'15m':{einstieg:350,preis:350},'1w':{einstieg:350,preis:350},'1M':{einstieg:350,preis:350}};
+const COIN_INFO={ LTC:'<b>LTC:</b> Bitrue ist deine Börse.', KSM:'<b>KSM:</b> Bitrue ist deine Börse.', XRP:'<b>XRP:</b> Bitrue ist deine Börse.', XLM:'<b>XLM:</b> Bitrue ist deine Börse.', SHX:'<b>SHX:</b> Bitrue ist deine Börse.', ZEC:'<b>ZEC:</b> Privacy-Coin. Sehr volatil!', LINK:'<b>LINK:</b> Chainlink - Orakel. Oft in Welle 3.', ADA:'<b>ADA:</b> Cardano - oft in Welle 3 nach WXY-Korrektur.', DOT:'<b>DOT:</b> Polkadot - Bruder von KSM! Start von Welle 3 möglich.', AVAX:'<b>AVAX:</b> Avalanche - globale Welle 3 möglich.', ETH:'<b>ETH:</b> Ethereum - 2. größter Coin, führt Alts an.', DOGE:'<b>DOGE:</b> Meme-Coin, sehr volatil.', BTC:'<b>BTC:</b> Bitcoin - König, bestimmt alles.', SOL:'<b>SOL:</b> Solana - schnell, volatil.' };
+const TF_BINANCE={'15m':'15m','1h':'1h','1d':'1d','1w':'1w','1M':'1M'};
+const TF_BYBIT={'15m':'15','1h':'60','1d':'D','1w':'W','1M':'M'};
+const TF_BITGET={'15m':'15m','1h':'1H','1d':'1D','1w':'1W','1M':'1M'};
+const TF_TV={'15m':'15','1h':'60','1d':'D','1w':'W','1M':'M'};
+const TF_LABEL={'15m':'15M','1h':'1H','1d':'1D','1w':'1W','1M':'1M'};
+const TF_UPDATE={'15m':60,'1h':5*60,'1d':30*60,'1w':60*60,'1M':24*60*60};
+const TV_SYMBOL={LTC:'BINANCE%3ALTCUSDT',KSM:'BINANCE%3AKSMUSDT',XRP:'BINANCE%3AXRPUSDT',XLM:'BINANCE%3AXLMUSDT',SHX:'BINANCE%3ASHXUSDT',ZEC:'BINANCE%3AZECUSDT',LINK:'BINANCE%3ALINKUSDT',ADA:'BINANCE%3AADAUSDT',DOT:'BINANCE%3ADOTUSDT',AVAX:'BINANCE%3AAVAXUSDT',ETH:'BINANCE%3AETHUSDT',DOGE:'BINANCE%3ADOGEUSDT',BTC:'BINANCE%3ABTCUSDT',SOL:'BINANCE%3ASOLUSDT'};
+function stellenFuerCoin(c){ if(c==='XLM') return 4; if(c==='SHX') return 6; if(c==='XRP') return 4; if(c==='ZEC') return 2; if(c==='BTC') return 0; if(c==='ETH') return 0; if(c==='DOGE') return 4; if(c==='ADA') return 4; if(c==='DOT') return 3; if(c==='AVAX') return 2; if(c==='LINK') return 2; if(c==='SOL') return 2; return 3; }
+function berechneRSI_EXAKT(closes, periode){
+ if(!closes || closes.length < periode+2) return 50;
+ let gains=0, losses=0;
+ for(let i=1; i<=periode; i++){ let d=closes[i]-closes[i-1]; if(d>=0) gains+=d; else losses+=-d; }
+ let ag=gains/periode, al=losses/periode;
+ for(let i=periode+1; i<closes.length; i++){ let d=closes[i]-closes[i-1]; let g=d>0?d:0, l=d<0?-d:0; ag=(ag*(periode-1)+g)/periode; al=(al*(periode-1)+l)/periode; }
+ if(al===0) return 100; if(ag===0) return 0;
+ let rs=ag/al; return 100-(100/(1+rs));
+}
+function berechneEMA_EXAKT(data, periode){
+ let k=2/(periode+1); let ema=0;
+ for(let i=0;i<periode;i++) ema+=data[i]; ema=ema/periode;
+ for(let i=periode;i<data.length;i++){ ema=data[i]*k+ema*(1-k); }
+ return ema;
+}
+function formatMcap(v){ if(!v) return '--'; if(v>=1e12) return (v/1e12).toFixed(2)+' Bio. $'; if(v>=1e9) return (v/1e9).toFixed(1)+' Mrd. $'; return v.toFixed(0)+' $'; }
+async function fetchJSON(url){
+  try{ let r = await fetch(url, {headers:{'Accept':'application/json'}}); if(r.ok){ let t = await r.text(); try{ return JSON.parse(t); }catch(e){ return t; } } }catch(e){}
+  try{ let r = await fetch('https://corsproxy.io/?url='+encodeURIComponent(url)); if(r.ok){ let t = await r.text(); try{ return JSON.parse(t); }catch(e){ return t; } } }catch(e){}
+  try{ let r = await fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(url)); if(r.ok){ let t = await r.text(); try{ return JSON.parse(t); }catch(e){ return t; } } }catch(e){}
+  try{ let r = await fetch('https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(url)); if(r.ok){ let t = await r.text(); try{ return JSON.parse(t); }catch(e){ return t; } } }catch(e){}
+  return null;
+}
+async function testAlleQuellen(){
+  debugLog=[]; logDebug('Teste Quellen für '+coin+' '+timeframe+'...');
+  let tests = [['Coinbase', 'https://api.exchange.coinbase.com/products/'+coin+'-USD/candles?granularity=86400'],['Kraken', 'https://api.kraken.com/0/public/OHLC?pair='+coin+'USD&interval=1440'],['Binance', 'https://api.binance.com/api/v3/klines?symbol='+coin+'USDT&interval=1d&limit=5'],['CoinGecko Global', 'https://api.coingecko.com/api/v3/global'],['OKX', 'https://www.okx.com/api/v5/market/candles?instId='+coin+'-USDT&bar=1D&limit=5']];
+  for(let [name,url] of tests){ let j = await fetchJSON(url); if(j) logDebug('✅ '+name+' GEHT!'); else logDebug('❌ '+name+' geht NICHT'); }
+  logDebug('Fertig.');
+}
+
+// ===== NEU: WELLE 3 SCANNER =====
+async function holeKerzenFuerScan(coinName, tf){
+  // tf = '1d' oder '1w'
+  let oldTf = timeframe; timeframe = tf;
+  let interval = TF_BINANCE[tf];
+  let candles = await holeKerzenMitHighLow(coinName+'USDT', interval);
+  timeframe = oldTf;
+  return candles;
+}
+async function scanWave3Coins(){
+  let box = document.getElementById('wave3Scan');
+  box.innerHTML = '⏳ Scanne 14 Coins x 2 Timeframes (1D + 1W)... bitte warten, ca. 20-30 Sek.<br><br>1/14 ...';
+  document.getElementById('wave3ScanTime').innerText = 'Scan läuft...';
+  let results = [];
+  let oldCoin = coin;
+  for(let i=0;i<ALL_COINS.length;i++){
+    let c = ALL_COINS[i];
+    box.innerHTML = '⏳ Scanne '+(i+1)+'/14: <b>'+c+'</b> ...<br><br>'+results.length+' Welle-3-Coins bisher gefunden.';
+    try{
+      let candles1D = await holeKerzenFuerScan(c, '1d');
+      let candles1W = await holeKerzenFuerScan(c, '1w');
+      let ell1D = null, ell1W = null;
+      let savedCoin = coin; coin = c;
+      if(candles1D && candles1D.length>=80) ell1D = berechneElliott(candles1D);
+      if(candles1W && candles1W.length>=80) ell1W = berechneElliott(candles1W);
+      coin = savedCoin;
+      let preis = candles1D && candles1D.length ? candles1D[candles1D.length-1].close : 0;
+      let rsi1D = candles1D && candles1D.length ? berechneRSI_EXAKT(candles1D.map(x=>x.close),14) : 50;
+      let isW3Up1D = ell1D && ell1D.welle && ell1D.welle.includes('WELLE 3') && ell1D.richtung==='AUFWÄRTS';
+      let isW3Up1W = ell1W && ell1W.welle && ell1W.welle.includes('WELLE 3') && ell1W.richtung==='AUFWÄRTS';
+      let isW3Down1D = ell1D && ell1D.welle && ell1D.welle.includes('WELLE 3') && ell1D.richtung==='ABWÄRTS';
+      let isW3Down1W = ell1W && ell1W.welle && ell1W.welle.includes('WELLE 3') && ell1W.richtung==='ABWÄRTS';
+      let st = stellenFuerCoin(c);
+      let ziel = ell1D ? ell1D.zielW3 : (ell1W ? ell1W.zielW3 : 0);
+      results.push({coin:c, preis, rsi:rsi1D, ell1D: ell1D ? ell1D.welle : 'KEIN ELLIOTT', ell1W: ell1W ? ell1W.welle : 'KEIN ELLIOTT', isW3Up1D, isW3Up1W, isW3Down1D, isW3Down1W, ziel, ell1DObj: ell1D, ell1WObj: ell1W});
+    }catch(e){
+      results.push({coin:c, preis:0, rsi:50, ell1D:'FEHLER', ell1W:'FEHLER', isW3Up1D:false, isW3Up1W:false, isW3Down1D:false, isW3Down1W:false, ziel:0});
+    }
+    await new Promise(r=>setTimeout(r, 300));
+  }
+  coin = oldCoin;
+  // Auswertung
+  let echt = results.filter(r=>r.isW3Up1D && r.isW3Up1W);
+  let nur1D = results.filter(r=>r.isW3Up1D && !r.isW3Up1W);
+  let nur1W = results.filter(r=>!r.isW3Up1D && r.isW3Up1W);
+  let down = results.filter(r=>r.isW3Down1D || r.isW3Down1W);
+  let html = '';
+  html += '<div style="background:#22c55e;color:#000;border-radius:12px;padding:12px;text-align:center;font-weight:800;margin-bottom:10px">🟢 ECHTE WELLE-3-COINS (1D + 1W beide HOCH): '+echt.length+' / 14</div>';
+  if(echt.length===0) html += '<div class="scan-gray">Kein Coin ist aktuell auf BEIDEN Timeframes in Welle 3 hoch. Das heißt: Es gibt gerade KEINE bestätigte Welle-3-Rallye. Warte auf Gruppe 2 unten.</div>';
+  else echt.forEach(r=>{ let st=stellenFuerCoin(r.coin); html += '<div class="scan-green"><b style="font-size:16px">🟢 '+r.coin+' - WELLE 3 HOCH 🚀</b><br>Preis: <b>'+r.preis.toFixed(st)+' $</b> | RSI 1D: '+r.rsi.toFixed(1)+'<br>1D: '+r.ell1D+'<br>1W: '+r.ell1W+'<br>🎯 Welle-3-Ziel: <b>'+(r.ziel?r.ziel.toFixed(st)+' $':'--')+'</b><br><button onclick="setCoin(\''+r.coin+'\')" style="background:#22c55e;color:#000;padding:8px;margin-top:6px">👉 '+r.coin+' ANALYSIEREN</button></div>'; });
+  html += '<div style="background:#facc15;color:#000;border-radius:12px;padding:10px;text-align:center;font-weight:800;margin:12px 0 10px">🟡 NUR AUF EINEM TIMEFRAME IN WELLE 3 HOCH: '+(nur1D.length+nur1W.length)+' Coins - Vorsicht, noch nicht bestätigt!</div>';
+  [...nur1D, ...nur1W].forEach(r=>{ let st=stellenFuerCoin(r.coin); html += '<div class="scan-yellow"><b>🟡 '+r.coin+'</b> - Preis: '+r.preis.toFixed(st)+' $ | RSI: '+r.rsi.toFixed(1)+'<br>1D: '+r.ell1D+'<br>1W: '+r.ell1W+'<br>→ Nur ein Timeframe sagt Welle 3. Warte bis der andere auch bestätigt.</div>'; });
+  html += '<div style="background:#ef4444;color:#fff;border-radius:12px;padding:10px;text-align:center;font-weight:800;margin:12px 0 10px">🔴 WELLE 3 RUNTER - FALLE! NICHT LONG GEHEN: '+down.length+' Coins</div>';
+  if(down.length===0) html += '<div class="scan-gray">Kein Coin in Welle 3 runter. Gut.</div>';
+  else down.forEach(r=>{ let st=stellenFuerCoin(r.coin); html += '<div class="scan-red"><b>🔴 '+r.coin+' - WELLE 3 RUNTER</b><br>Preis: '+r.preis.toFixed(st)+' $ | 1D: '+r.ell1D+' | 1W: '+r.ell1W+'<br>→ Hier fällt es am schnellsten! Kein Long!</div>'; });
+  html += '<div style="margin-top:12px"><b>Alle 14 im Überblick:</b><table><tr><td><b>Coin</b></td><td><b>Preis</b></td><td><b>1D</b></td><td><b>1W</b></td></tr>';
+  results.forEach(r=>{ let st=stellenFuerCoin(r.coin); let farbe = (r.isW3Up1D && r.isW3Up1W) ? '#22c55e' : (r.isW3Down1D||r.isW3Down1W) ? '#ef4444' : '#aaa'; html += '<tr><td><b style="color:'+farbe+'">'+r.coin+'</b></td><td>'+r.preis.toFixed(st)+' $</td><td>'+r.ell1D+'</td><td>'+r.ell1W+'</td></tr>'; });
+  html += '</table></div>';
+  html += '<div style="font-size:12px;color:#888;margin-top:10px">Hinweis: Elliott ist immer eine Zählung. Wenn 1D + 1W beide Welle 3 hoch sagen, ist die Wahrscheinlichkeit am höchsten. Wenn nur einer es sagt, ist es noch nicht bestätigt.</div>';
+  box.innerHTML = html;
+  document.getElementById('wave3ScanTime').innerText = 'Letzter Scan: '+new Date().toLocaleTimeString('de-DE')+' | '+echt.length+' echte Welle-3-Coins, '+(nur1D.length+nur1W.length)+' nur auf einem Timeframe, '+down.length+' in Welle 3 runter';
+  logDebug('✅ Welle-3-Scan fertig: '+echt.length+' echte, '+down.length+' runter');
+}
+
+async function holeMarktDominanz(){
+  try{
+    let j = await fetchJSON('https://api.coingecko.com/api/v3/global');
+    if(j && j.data){
+      let d = j.data;
+      totalMcap = d.total_market_cap ? d.total_market_cap.usd : 0;
+      totalVol24h = d.total_volume ? d.total_volume.usd : 0;
+      let mcp = d.market_cap_percentage || {};
+      if(btcDominanz>0){ btcDominanzPrev = btcDominanz; ethDominanzPrev = ethDominanz; usdtDominanzPrev = usdtDominanz; }
+      btcDominanz = mcp.btc || 0; ethDominanz = mcp.eth || 0; usdtDominanz = mcp.usdt || 0;
+      let usdc = mcp.usdc || 0; let bnb = mcp.bnb || 0;
+      altDominanz = 100 - btcDominanz - ethDominanz - usdtDominanz - usdc - bnb;
+      if(altDominanz<0) altDominanz = 100 - btcDominanz - ethDominanz - usdtDominanz;
+      domHistory.push({zeit: Date.now(), btc: btcDominanz, eth: ethDominanz, usdt: usdtDominanz, alt: altDominanz});
+      if(domHistory.length>20) domHistory.shift();
+      usdtHistory.push({zeit: Date.now(), wert: usdtDominanz});
+      berechneDominanzSignale();
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+function berechneDominanzSignale(){
+  if(btcDominanz===0) return;
+  let btcTrendWert = 0, ethTrendWert = 0, usdtTrendWert = 0, altTrendWert = 0;
+  if(domHistory.length>=4){ let alt = domHistory[domHistory.length-4]; btcTrendWert = btcDominanz - alt.btc; ethTrendWert = ethDominanz - alt.eth; usdtTrendWert = usdtDominanz - alt.usdt; altTrendWert = altDominanz - alt.alt; }
+  else { btcTrendWert = btcDominanz - btcDominanzPrev; ethTrendWert = ethDominanz - ethDominanzPrev; usdtTrendWert = usdtDominanz - usdtDominanzPrev; }
+  btcDomTrend = btcTrendWert > 0.1 ? '⬆️ STEIGT' : btcTrendWert < -0.1 ? '⬇️ FÄLLT' : '➡️ SEITWÄRTS';
+  ethDomTrend = ethTrendWert > 0.1 ? '⬆️ STEIGT' : ethTrendWert < -0.1 ? '⬇️ FÄLLT' : '➡️ SEITWÄRTS';
+  usdtTrend = usdtTrendWert > 0.05 ? 'STEIGT ⬆️' : usdtTrendWert < -0.05 ? 'FÄLLT ⬇️' : 'SEITWÄRTS ➡️';
+  altDomTrend = altTrendWert > 0.1 ? '⬆️ STEIGT' : altTrendWert < -0.1 ? '⬇️ FÄLLT' : '➡️ SEITWÄRTS';
+  let signal, farbe, boxClass, btcFazit, trendText;
+  if(usdtTrendWert > 0.05){ usdtSignal='BÄRISCH FÜR BTC 🔴'; signal='🔴 USDT.D STEIGT ⬆️ = BTC BÄRISCH'; farbe='#ef4444'; boxClass='usdt-box-bear'; trendText='USDT Dominanz steigt +'+usdtTrendWert.toFixed(2)+'% → Geld flieht in USDT.'; btcFazit='👉 <b style="color:#ef4444">BTC wird eher FALLEN.</b> Kein Long!'; }
+  else if(usdtTrendWert < -0.05){ usdtSignal='BULLISCH FÜR BTC 🟢'; signal='🟢 USDT.D FÄLLT ⬇️ = BTC BULLISCH'; farbe='#22c55e'; boxClass='usdt-box-bull'; trendText='USDT Dominanz fällt '+usdtTrendWert.toFixed(2)+'% → Geld fließt in BTC / Altcoins.'; btcFazit='👉 <b style="color:#22c55e">BTC wird eher STEIGEN.</b> Longs im Vorteil!'; }
+  else { usdtSignal='NEUTRAL 🟡'; signal='🟡 USDT.D SEITWÄRTS ➡️ = BTC NEUTRAL'; farbe='#facc15'; boxClass='usdt-box-neutral'; trendText='USDT Dominanz fast unverändert.'; btcFazit='👉 <b>Kein USDT-Signal.</b>'; }
+  let kombi = '';
+  if(usdtTrend==='STEIGT ⬆️' && btcSignal==='BULLISCH') kombi = '<br><b style="color:#facc15">⚠️ WARNUNG: BTC steigt, aber USDT.D steigt auch! Falle!</b>';
+  else if(usdtTrend==='FÄLLT ⬇️' && btcSignal==='BÄRISCH') kombi = '<br><b style="color:#facc15">⚠️ WARNUNG: BTC fällt, aber USDT.D fällt auch! Boden nahe!</b>';
+  else if(usdtTrend==='STEIGT ⬆️' && btcSignal==='BÄRISCH') kombi = '<br><b style="color:#ef4444">✅ BESTÄTIGT: USDT.D steigt + BTC bärisch = Doppelt bärisch!</b>';
+  else if(usdtTrend==='FÄLLT ⬇️' && btcSignal==='BULLISCH') kombi = '<br><b style="color:#22c55e">✅ BESTÄTIGT: USDT.D fällt + BTC bullisch = Doppelt bullisch!</b>';
+  usdtBtcFazit = btcFazit + kombi;
+  let altFazit = '';
+  if(altTrendWert > 0.1 && usdtTrendWert < -0.05){ altSignal='ALTSEASON 🟢🟢'; altFazit='🚀 <b style="color:#22c55e">ALTSEASON!</b> Geld in Altcoins!'; }
+  else if(altTrendWert > 0.1){ altSignal='ALTS STARK 🟢'; altFazit='🟢 <b>Altcoins stärker als BTC.</b>'; }
+  else if(altTrendWert < -0.1 && btcTrendWert > 0.1){ altSignal='BTC SEASON 🔴'; altFazit='🔴 <b style="color:#ef4444">BTC SEASON!</b> Geld aus Altcoins in BTC.'; }
+  else if(altTrendWert < -0.1 && usdtTrendWert > 0.05){ altSignal='ALT CRASH 🔴🔴'; altFazit='🔴 <b style="color:#ef4444">ALT CRASH!</b> Geld flieht aus Altcoins.'; }
+  else { altSignal='NEUTRAL 🟡'; altFazit='🟡 Altcoins neutral.'; }
+  document.getElementById('totalMcap').innerText = formatMcap(totalMcap);
+  document.getElementById('totalVol').innerText = formatMcap(totalVol24h);
+  document.getElementById('btcDomVal').innerText = btcDominanz.toFixed(2)+' %';
+  document.getElementById('btcDomTrend').innerText = btcDomTrend;
+  document.getElementById('btcDomBar').style.width = Math.min(100, btcDominanz)+'%';
+  document.getElementById('btcDomFazit').innerText = btcTrendWert>0.1 ? 'BTC bekommt mehr Geld.' : btcTrendWert<-0.1 ? 'BTC verliert Geld an Altcoins.' : 'BTC Dominanz stabil.';
+  document.getElementById('ethDomVal').innerText = ethDominanz.toFixed(2)+' %';
+  document.getElementById('ethDomTrend').innerText = ethDomTrend;
+  document.getElementById('ethDomBar').style.width = Math.min(100, ethDominanz*2)+'%';
+  document.getElementById('ethDomFazit').innerText = ethTrendWert>0.1 ? 'ETH bekommt Geld.' : ethTrendWert<-0.1 ? 'ETH verliert Geld.' : 'ETH stabil.';
+  document.getElementById('usdtDomVal').innerText = usdtDominanz.toFixed(2)+' %';
+  document.getElementById('usdtDomTrend').innerText = usdtTrend;
+  document.getElementById('usdtDomBar').style.width = Math.min(100, usdtDominanz*5)+'%';
+  document.getElementById('usdtDomFazit').innerText = usdtTrendWert>0.05 ? 'Geld flieht in USDT = Angst!' : usdtTrendWert<-0.05 ? 'Geld fließt aus USDT raus = Kaufen!' : 'USDT stabil.';
+  document.getElementById('altDomVal').innerText = altDominanz.toFixed(2)+' %';
+  document.getElementById('altDomTrend').innerText = altDomTrend;
+  document.getElementById('altDomBar').style.width = Math.min(100, altDominanz)+'%';
+  document.getElementById('altDomFazit').innerText = altFazit;
+  let box = document.getElementById('usdtBox'); box.className = boxClass;
+  document.getElementById('usdtSignal').innerText = signal; document.getElementById('usdtSignal').style.color = farbe;
+  document.getElementById('usdtTrend').innerText = trendText;
+  document.getElementById('usdtBtcFazit').innerHTML = btcFazit + kombi;
+  document.getElementById('usdtInput').value = usdtDominanz.toFixed(2)+' % - '+usdtTrend;
+  document.getElementById('usdtSignalInput').value = usdtSignal;
+  document.getElementById('btcDomInput').value = btcDominanz.toFixed(2)+' % - '+btcDomTrend;
+  document.getElementById('ethDomInput').value = ethDominanz.toFixed(2)+' % - '+ethDomTrend;
+  document.getElementById('altDomInput').value = altDominanz.toFixed(2)+' % - '+altDomTrend;
+  document.getElementById('domAltSignalInput').value = altSignal;
+  document.getElementById('usdtHistory').innerText = 'Verlauf BTC.D: ' + domHistory.slice(-4).map(h=>h.btc.toFixed(2)+'%').join(' → ') + ' | USDT.D: ' + domHistory.slice(-4).map(h=>h.usdt.toFixed(2)+'%').join(' → ') + ' | ALT.D: ' + domHistory.slice(-4).map(h=>h.alt.toFixed(2)+'%').join(' → ');
+  let comboHtml = '<b>🧠 DOMINANZ-KOMBI:</b><br>';
+  if(altTrendWert > 0.1 && usdtTrendWert < -0.05) comboHtml += '🚀 <b style="color:#22c55e">ALTSEASON!</b> USDT.D ⬇️ + ALT.D ⬆️ = Geld in Altcoins!';
+  else if(btcTrendWert > 0.1 && altTrendWert < -0.1) comboHtml += '🟠 <b style="color:#f7931a">BTC SEASON!</b> BTC.D ⬆️ + ALT.D ⬇️ = Geld aus Altcoins in BTC.';
+  else if(usdtTrendWert > 0.05) comboHtml += '🔴 <b style="color:#ef4444">FLUCHT IN USDT!</b> USDT.D ⬆️ = Alle verkaufen.';
+  else if(usdtTrendWert < -0.05 && btcTrendWert > 0.1) comboHtml += '🟢 <b style="color:#22c55e">GELD IN BTC!</b> USDT.D ⬇️ + BTC.D ⬆️ = Geld in BTC.';
+  else comboHtml += '🟡 <b>Kein klares Geld-Fließen.</b>';
+  document.getElementById('domComboBox').innerHTML = comboHtml;
+  document.getElementById('btcUsdtCombo').innerHTML = '🌍 BTC.D: <b>'+btcDominanz.toFixed(2)+'% '+btcDomTrend+'</b> | ETH.D: <b>'+ethDominanz.toFixed(2)+'%</b> | USDT.D: <b style="color:'+farbe+'">'+usdtDominanz.toFixed(2)+'% '+usdtTrend+'</b> | ALT.D: <b>'+altDominanz.toFixed(2)+'% '+altDomTrend+'</b><br>'+btcFazit+'<br>'+altFazit;
+}
+function findeSwingFull(candles){
+  let data = candles;
+  let swingHigh=-Infinity, swingLow=Infinity, idxHigh=0, idxLow=0, timeHigh=0, timeLow=0;
+  data.forEach((c,i)=>{ if(c.high>swingHigh){ swingHigh=c.high; idxHigh=i; timeHigh=c.time; } if(c.low<swingLow){ swingLow=c.low; idxLow=i; timeLow=c.time; } });
+  let isUp = idxHigh > idxLow;
+  if(isUp){ let vorHoch = data.slice(0, idxHigh+1); swingLow = Math.min(...vorHoch.map(c=>c.low)); let idxL = vorHoch.findIndex(c=>c.low===swingLow); timeLow = vorHoch[idxL].time; }
+  else { let vorTief = data.slice(0, idxLow+1); swingHigh = Math.max(...vorTief.map(c=>c.high)); let idxH = vorTief.findIndex(c=>c.high===swingHigh); timeHigh = vorTief[idxH].time; }
+  return {swingHigh, swingLow, isUp, idxHigh, idxLow, timeHigh, timeLow, totalCandles:data.length};
+}
+function findeSwingRecent(candles){
+  let data = candles.slice(-100);
+  let swingHigh=-Infinity, swingLow=Infinity, idxHigh=0, idxLow=0;
+  data.forEach((c,i)=>{ if(c.high>swingHigh){ swingHigh=c.high; idxHigh=i; } if(c.low<swingLow){ swingLow=c.low; idxLow=i; } });
+  let isUp = idxHigh > idxLow;
+  if(isUp){ let vorHoch = data.slice(0, idxHigh+1); swingLow = Math.min(...vorHoch.map(c=>c.low)); }
+  else { let vorTief = data.slice(0, idxLow+1); swingHigh = Math.max(...vorTief.map(c=>c.high)); }
+  return {swingHigh, swingLow, isUp, idxHigh, idxLow};
+}
+function berechneAutoFibos(swingHigh, swingLow, isUp){
+  let diff = swingHigh - swingLow; let levels;
+  if(isUp){ levels = {'0': swingHigh,'0.236': swingHigh - diff*0.236,'0.382': swingHigh - diff*0.382,'0.5': swingHigh - diff*0.5,'0.618': swingHigh - diff*0.618,'0.786': swingHigh - diff*0.786,'1': swingLow,'-0.272': swingHigh + diff*0.272,'-0.618': swingHigh + diff*0.618}; }
+  else { levels = {'0': swingLow,'0.236': swingLow + diff*0.236,'0.382': swingLow + diff*0.382,'0.5': swingLow + diff*0.5,'0.618': swingLow + diff*0.618,'0.786': swingLow + diff*0.786,'1': swingHigh,'-0.272': swingLow - diff*0.272,'-0.618': swingLow - diff*0.618}; }
+  return {levels, diff};
+}
+function findePivots(candles, links=3, rechts=3){
+  let pivots = [];
+  for(let i=links; i<candles.length-rechts; i++){
+    let isHigh = true, isLow = true;
+    for(let j=1;j<=links;j++){ if(candles[i].high < candles[i-j].high || candles[i].high < candles[i+j].high) isHigh=false; }
+    for(let j=1;j<=links;j++){ if(candles[i].low > candles[i-j].low || candles[i].low > candles[i+j].low) isLow=false; }
+    if(isHigh) pivots.push({idx:i, preis:candles[i].high, typ:'HOCH', zeit:candles[i].time});
+    if(isLow) pivots.push({idx:i, preis:candles[i].low, typ:'TIEF', zeit:candles[i].time});
+  }
+  pivots.sort((a,b)=>a.idx-b.idx);
+  let gefiltert = [];
+  for(let p of pivots){
+    if(gefiltert.length===0 || gefiltert[gefiltert.length-1].typ !== p.typ) gefiltert.push(p);
+    else { let last = gefiltert[gefiltert.length-1]; if(p.typ==='HOCH' && p.preis > last.preis) gefiltert[gefiltert.length-1]=p; if(p.typ==='TIEF' && p.preis < last.preis) gefiltert[gefiltert.length-1]=p; }
+  }
+  return gefiltert;
+}
+function berechneElliott(candles){
+  if(!candles || candles.length < 80) return null;
+  let pivots = findePivots(candles, 4, 4); if(pivots.length < 6) return null;
+  let best = null;
+  for(let startIdx = Math.max(0, pivots.length-10); startIdx <= pivots.length-6; startIdx++){
+    let p = pivots.slice(startIdx, startIdx+6); let preis = candles[candles.length-1].close; let st = stellenFuerCoin(coin);
+    if(p[0].typ==='TIEF' && p[1].typ==='HOCH' && p[2].typ==='TIEF' && p[3].typ==='HOCH' && p[4].typ==='TIEF' && p[5].typ==='HOCH'){
+      let w1 = p[1].preis - p[0].preis; let w2 = p[1].preis - p[2].preis; let w3 = p[3].preis - p[2].preis; let w4 = p[3].preis - p[4].preis; let w5 = p[5].preis - p[4].preis;
+      if(w1<=0 || w3<=0 || w5<=0) continue;
+      let regel2 = w2 < w1; let regel3 = !(w3 < w1 && w3 < w5); let regel4 = p[4].preis > p[1].preis; let scoreBonus = (regel2 && regel3 && regel4) ? 5 : -10;
+      let welle, fazit, bonus = scoreBonus; let zielW3 = p[2].preis + w1 * 1.618; let zielW5_100 = p[4].preis + w1; let zielW5_1618 = p[4].preis + w1 * 1.618;
+      if(preis > p[5].preis){ welle='WELLE 5 ABGESCHLOSSEN ✅'; fazit='Impuls fertig! Jetzt ABC-Korrektur.'; bonus = -5; } else if(preis > p[4].preis && preis <= p[5].preis){ welle='WELLE 5 LÄUFT 🔴'; fazit='Welle 5 - letzte Welle! Ziel: '+zielW5_100.toFixed(st)+' $'; bonus = -10; } else if(preis > p[3].preis){ welle='WELLE 4 LÄUFT ⏳'; fazit='Welle 4 Korrektur.'; bonus = -8; } else if(preis > p[2].preis && preis <= p[3].preis){ welle='WELLE 3 LÄUFT 🚀'; fazit='Welle 3 - STÄRKSTE Welle! Ziel: '+zielW3.toFixed(st)+' $'; bonus = 15; } else if(preis > p[1].preis){ welle='WELLE 2 LÄUFT ⏳'; fazit='Welle 2 Korrektur.'; bonus = -8; } else { welle='WELLE 1 LÄUFT'; fazit='Welle 1.'; bonus = 0; }
+      let cand = {richtung:'AUFWÄRTS', p0:p[0], p1:p[1], p2:p[2], p3:p[3], p4:p[4], p5:p[5], w1,w2,w3,w4,w5, regel2, regel3, regel4, gueltig:(regel2&&regel3&&regel4), welle, fazit, bonus, preis, zielW3, zielW5_100, zielW5_1618, startIdx};
+      if(!best || cand.startIdx > best.startIdx) best = cand;
+    }
+    if(p[0].typ==='HOCH' && p[1].typ==='TIEF' && p[2].typ==='HOCH' && p[3].typ==='TIEF' && p[4].typ==='HOCH' && p[5].typ==='TIEF'){
+      let w1 = p[0].preis - p[1].preis; let w2 = p[2].preis - p[1].preis; let w3 = p[2].preis - p[3].preis; let w4 = p[4].preis - p[3].preis; let w5 = p[4].preis - p[5].preis;
+      if(w1<=0 || w3<=0 || w5<=0) continue;
+      let regel2 = w2 < w1; let regel3 = !(w3 < w1 && w3 < w5); let regel4 = p[4].preis < p[1].preis; let scoreBonus = (regel2 && regel3 && regel4) ? 5 : -10;
+      let zielW3 = p[2].preis - w1 * 1.618; let zielW5_100 = p[4].preis - w1; let zielW5_1618 = p[4].preis - w1 * 1.618;
+      let welle, fazit, bonus = scoreBonus;
+      if(preis < p[5].preis){ welle='WELLE 5 ABGESCHLOSSEN ✅'; fazit='Impuls fertig!'; bonus = -5; } else if(preis < p[4].preis && preis >= p[5].preis){ welle='WELLE 5 LÄUFT 🔴'; fazit='Welle 5 runter!'; bonus = -10; } else if(preis < p[3].preis){ welle='WELLE 4 LÄUFT ⏳'; fazit='Welle 4 Erholung.'; bonus = -8; } else if(preis < p[2].preis && preis >= p[3].preis){ welle='WELLE 3 LÄUFT 🔴'; fazit='Welle 3 runter - STÄRKSTE! Ziel: '+zielW3.toFixed(st)+' $'; bonus = 15; } else if(preis < p[1].preis){ welle='WELLE 2 LÄUFT ⏳'; fazit='Welle 2.'; bonus = -8; } else { welle='WELLE 1 LÄUFT'; fazit='Welle 1 runter.'; bonus = 0; }
+      let cand = {richtung:'ABWÄRTS', p0:p[0], p1:p[1], p2:p[2], p3:p[3], p4:p[4], p5:p[5], w1,w2,w3,w4,w5, regel2, regel3, regel4, gueltig:(regel2&&regel3&&regel4), welle, fazit, bonus, preis, zielW3, zielW5_100, zielW5_1618, startIdx};
+      if(!best || cand.startIdx > best.startIdx) best = cand;
+    }
+  }
+  return best;
+}
+function zeigeElliott(e){
+  if(!e){ document.getElementById('elliottBox').innerHTML='Kein klarer Elliott-Impuls gefunden.'; document.getElementById('elliottDetail').innerHTML=''; document.getElementById('elliottTargets').innerHTML='Kein Elliott-Ziel.'; document.getElementById('elliottRules').innerHTML=''; elliottSignal='KEIN ELLIOTT'; document.getElementById('elliottInput').value='KEIN ELLIOTT'; document.getElementById('elliottZielInput').value=''; return; }
+  elliottData = e; elliottSignal = e.welle; let st = stellenFuerCoin(coin);
+  let farbe = e.welle.includes('WELLE 3') && e.richtung==='AUFWÄRTS' ? '#22c55e' : e.welle.includes('WELLE 5') ? '#ef4444' : '#facc15';
+  document.getElementById('elliottBox').innerHTML = '<b style="color:'+farbe+'">'+e.welle+'</b><br>'+e.fazit;
+  document.getElementById('elliottDetail').innerHTML = '<div class="wave-row"><span>0 → 1</span><span>'+e.p0.preis.toFixed(st)+' $ → '+e.p1.preis.toFixed(st)+' $</span><span>'+e.w1.toFixed(st)+' $</span></div>'+ '<div class="wave-row"><span>1 → 2</span><span>'+e.p1.preis.toFixed(st)+' $ → '+e.p2.preis.toFixed(st)+' $</span><span>'+e.w2.toFixed(st)+' $</span></div>'+ '<div class="wave-row"><span>2 → 3 ⭐</span><span>'+e.p2.preis.toFixed(st)+' $ → '+e.p3.preis.toFixed(st)+' $</span><span>'+e.w3.toFixed(st)+' $</span></div>'+ '<div class="wave-row"><span>3 → 4</span><span>'+e.p3.preis.toFixed(st)+' $ → '+e.p4.preis.toFixed(st)+' $</span><span>'+e.w4.toFixed(st)+' $</span></div>'+ '<div class="wave-row"><span>4 → 5</span><span>'+e.p4.preis.toFixed(st)+' $ → '+e.p5.preis.toFixed(st)+' $</span><span>'+e.w5.toFixed(st)+' $</span></div>';
+  document.getElementById('elliottTargets').innerHTML = '<b>🎯 ELLIOTT ZIELE:</b><br>Welle 3: <b>'+e.zielW3.toFixed(st)+' $</b><br>Welle 5 1.0: <b>'+e.zielW5_100.toFixed(st)+' $</b><br>Welle 5 1.618: <b>'+e.zielW5_1618.toFixed(st)+' $</b> ⭐';
+  document.getElementById('elliottZielInput').value = 'W3: '+e.zielW3.toFixed(st)+' $ | W5: '+e.zielW5_1618.toFixed(st)+' $';
+  document.getElementById('elliottRules').innerHTML = 'Regeln: W2 < W1: '+(e.regel2?'✅':'❌')+' | W3 nie kürzeste: '+(e.regel3?'✅':'❌')+' | W4 kein Overlap: '+(e.regel4?'✅':'❌');
+  document.getElementById('elliottInput').value = e.welle;
+}
+function berechneLongShort(signalKurz, score, preis, fib, darfTraden){
+  let st = stellenFuerCoin(coin);
+  let entscheidung = 'WARTEN'; let grund = ''; let entry = preis, stop = 0, target = 0;
+  let grossTrend = letzteAnalyse['1M'] ? letzteAnalyse['1M'].signal : (letzteAnalyse['1w'] ? letzteAnalyse['1w'].signal : null);
+  if(grossTrend && timeframe!=='1M' && timeframe!=='1w'){
+    if(grossTrend==='BÄRISCH' && signalKurz==='BULLISCH'){ entscheidung='WARTEN'; grund='🌍 GROSSER TREND (1M: '+grossTrend+') ist BÄRISCH! Kleiner Trend BULLISCH ist nur eine Erholung.'; entry=preis; stop=preis*0.98; target=preis*1.02; }
+    else if(grossTrend==='BULLISCH' && signalKurz==='BÄRISCH' && timeframe==='1d'){ entscheidung='WARTEN'; grund='🌍 GROSSER TREND (1M: '+grossTrend+') ist BULLISCH! 1D BÄRISCH ist nur eine Korrektur.'; entry=preis; stop=preis*0.98; target=preis*1.02; }
+  }
+  if(entscheidung!=='WARTEN' || grund===''){
+    if(altSignal==='BTC SEASON 🔴' && signalKurz==='BULLISCH'){ entscheidung='WARTEN'; grund='🌍 BTC SEASON! BTC.D ⬆️ + ALT.D ⬇️ = Geld aus Altcoins in BTC. Kein Long auf '+coin+'!'; entry=preis; stop=preis*0.98; target=preis*1.02; }
+    else if(altSignal==='ALT CRASH 🔴🔴'){ entscheidung='WARTEN'; grund='🌍 ALT CRASH! ALT.D ⬇️ + USDT.D ⬆️ = Geld flieht aus Altcoins.'; entry=preis; stop=preis*0.98; target=preis*1.02; }
+    else if(usdtSignal==='BÄRISCH FÜR BTC 🔴' && signalKurz==='BULLISCH'){ entscheidung='WARTEN'; grund='💵 USDT.D STEIGT ⬆️ = Geld flieht in USDT = BTC BÄRISCH. LONG blockiert!'; entry=preis; stop=preis*0.98; target=preis*1.02; }
+    else if(!darfTraden){ entscheidung='WARTEN'; grund='Blockiert: BTC / Volumen sagt NEIN.'; entry=preis; stop=preis*0.98; target=preis*1.02; }
+    else if(elliottData && elliottData.welle && (elliottData.welle.includes('WELLE 2') || elliottData.welle.includes('WELLE 4'))){ entscheidung='WARTEN'; grund='Elliott: Du bist in Welle '+(elliottData.welle.includes('WELLE 2')?'2':'4')+' (Korrektur). Warte!'; entry=preis; stop=preis*0.98; target=preis*1.02; }
+    else if(abcData && abcData.welle && abcData.welle.includes('WELLE B')){ entscheidung='WARTEN'; grund='ABC: Du bist in Welle B. Danach kommt C runter.'; entry=preis; stop=preis*0.98; target=preis*1.02; }
+    else if(score >= 65 && signalKurz==='BULLISCH'){ entscheidung='LONG'; grund='Score '+score+'/100 + BULLISCH.'; entry=preis; stop=fib['1']; target=fib['0.786']; if(usdtSignal==='BULLISCH FÜR BTC 🟢') grund+=' + 💵 USDT.D FÄLLT ⬇️!'; if(altSignal==='ALTSEASON 🟢🟢') grund+=' + 🚀 ALTSEASON!'; if(elliottData && elliottData.welle.includes('WELLE 3')) grund+=' + ELLIOTT WELLE 3 🚀'; }
+    else if(score <= 35 && signalKurz==='BÄRISCH'){ entscheidung='SHORT'; grund='Score '+score+'/100 + BÄRISCH.'; entry=preis; stop=fib['0']; target=fib['1']; }
+    else if(score >= 80){ entscheidung='LONG'; grund='Score '+score+'/100 = EXTREM STARK.'; entry=preis; stop=fib['1']; target=fib['0.618']; }
+    else if(score <= 20){ entscheidung='SHORT'; grund='Score '+score+'/100 = EXTREM SCHWACH.'; entry=preis; stop=fib['0']; target=fib['1']; }
+    else { entscheidung='WARTEN'; if(score >= 45 && score < 65) grund='Score '+score+'/100 = Zu schwach für LONG.'; else if(signalKurz==='BODENBILDUNG') grund='Signal ist BODENBILDUNG.'; else grund='Keine klare Kante.'; entry=preis; stop=preis*0.98; target=preis*1.02; }
+  }
+  let risiko = Math.abs(entry-stop); let chancen = Math.abs(target-entry); let crv = risiko>0 ? (chancen/risiko).toFixed(1) : '0';
+  let chance = 'Risiko: '+(risiko/preis*100).toFixed(1)+'% | Chance: '+(chancen/preis*100).toFixed(1)+'% | Chance/Risiko: 1 : '+crv;
+  longShortEntscheidung = entscheidung; lsEntry = entry; lsStop = stop; lsTarget = target;
+  let box = document.getElementById('longShortBox');
+  box.className = 'ls-box ' + (entscheidung==='LONG'?'ls-long':entscheidung==='SHORT'?'ls-short':'ls-wait');
+  document.getElementById('lsLabel').innerText = coin+' '+timeframe.toUpperCase()+' - Score '+score+'/100';
+  document.getElementById('lsBig').innerHTML = (entscheidung==='LONG'?'🟢 LONG':entscheidung==='SHORT'?'🔴 SHORT':'🟡 WARTEN') + '<br><span style="font-size:18px">'+coin+' '+timeframe.toUpperCase()+'</span>';
+  document.getElementById('lsSub').innerText = entscheidung==='LONG'?'KAUFEN - Long eröffnen':entscheidung==='SHORT'?'VERKAUFEN - Short eröffnen':'FINGER WEG - Kein Trade';
+  document.getElementById('lsGrund').innerText = grund;
+  document.getElementById('lsEntry').innerText = entry.toFixed(st)+' $';
+  document.getElementById('lsStop').innerText = stop.toFixed(st)+' $';
+  document.getElementById('lsTarget').innerText = target.toFixed(st)+' $';
+  document.getElementById('lsChance').innerText = chance;
+  document.getElementById('lsInput').value = entscheidung==='LONG'?'🟢 LONG - Kaufen':entscheidung==='SHORT'?'🔴 SHORT - Verkaufen':'🟡 WARTEN - Kein Trade';
+  return entscheidung;
+}
+function berechneABC(candles){
+  if(!candles || candles.length < 50) return null;
+  let pivots = findePivots(candles, 3, 3); if(pivots.length < 4) return null;
+  let p = pivots.slice(-4); let preis = candles[candles.length-1].close; let st = stellenFuerCoin(coin);
+  let start = p[0], a = p[1], b = p[2];
+  let istABCAbwaerts = (start.typ==='HOCH' && a.typ==='TIEF' && b.typ==='HOCH');
+  let istABCAufwaerts = (start.typ==='TIEF' && a.typ==='HOCH' && b.typ==='TIEF');
+  if(!istABCAbwaerts && !istABCAufwaerts) return null;
+  if(istABCAbwaerts){
+    let lenA = start.preis - a.preis;
+    let zielC_100 = b.preis - lenA; let zielC_1618 = b.preis - lenA * 1.618; let zielC_0786 = b.preis - lenA * 0.786;
+    let dist100 = Math.abs(preis - zielC_100) / zielC_100; let dist1618 = Math.abs(preis - zielC_1618) / zielC_1618;
+    let welle, fazit, scoreBonus;
+    if(preis > b.preis){ welle = 'ABC ABGESCHLOSSEN ✅'; fazit = 'ABC fertig!'; scoreBonus = 12; } else if(dist100 < 0.02 || dist1618 < 0.02){ welle = 'WELLE C - ENDE NAHE 🎯'; fazit = 'Preis fast am C-Ziel!'; scoreBonus = 10; } else if(preis < b.preis && preis > a.preis){ welle = 'WELLE B LÄUFT ⏳'; fazit = 'In B-Erholung. Nicht kaufen!'; scoreBonus = -8; } else if(preis < a.preis){ welle = 'WELLE C LÄUFT 🔴'; fazit = 'In C. Ziel: '+zielC_100.toFixed(st)+' $'; scoreBonus = -5; } else { welle = 'ABC UNKLAR'; fazit = 'ABC erkennbar.'; scoreBonus = 0; }
+    return {typ:'ABWÄRTS', start, a, b, lenA, retraceB:0, zielC_100, zielC_1618, zielC_0786, welle, fazit, scoreBonus, preis};
+  }
+  if(istABCAufwaerts){
+    let lenA = a.preis - start.preis;
+    let zielC_100 = b.preis + lenA; let zielC_1618 = b.preis + lenA * 1.618; let zielC_0786 = b.preis + lenA * 0.786;
+    let dist100 = Math.abs(preis - zielC_100) / zielC_100; let dist1618 = Math.abs(preis - zielC_1618) / zielC_1618;
+    let welle, fazit, scoreBonus;
+    if(preis < b.preis){ welle = 'ABC ABGESCHLOSSEN ✅'; fazit = 'ABC fertig.'; scoreBonus = -12; } else if(dist100 < 0.02 || dist1618 < 0.02){ welle = 'WELLE C - ENDE NAHE 🎯'; fazit = 'Fast am C-Ziel oben!'; scoreBonus = -10; } else if(preis > b.preis && preis < a.preis){ welle = 'WELLE B LÄUFT ⏳'; fazit = 'In B-Korrektur.'; scoreBonus = 8; } else if(preis > a.preis){ welle = 'WELLE C LÄUFT 🟢'; fazit = 'In C hoch.'; scoreBonus = 5; } else { welle='ABC UNKLAR'; fazit='ABC erkennbar.'; scoreBonus=0; }
+    return {typ:'AUFWÄRTS', start, a, b, lenA, retraceB:0, zielC_100, zielC_1618, zielC_0786, welle, fazit, scoreBonus, preis};
+  }
+  return null;
+}
+function zeigeABC(abc){
+  if(!abc){ document.getElementById('abcBox').innerHTML='Kein klares ABC-Muster.'; document.getElementById('abcDetail').innerHTML=''; document.getElementById('abcTargets').innerHTML='Kein ABC-Ziel.'; abcSignal='KEIN ABC'; return; }
+  let st = stellenFuerCoin(coin); abcData = abc; abcSignal = abc.welle;
+  document.getElementById('abcBox').innerHTML = '<b>'+abc.welle+'</b><br>'+abc.fazit;
+  document.getElementById('abcDetail').innerHTML = 'Start: <b>'+abc.start.preis.toFixed(st)+' $</b> | A: <b>'+abc.a.preis.toFixed(st)+' $</b> | B: <b>'+abc.b.preis.toFixed(st)+' $</b> | Preis: <b>'+abc.preis.toFixed(st)+' $</b>';
+  document.getElementById('abcTargets').innerHTML = '<b>🎯 ABC-ZIELE:</b><br>C 0.786: <b>'+abc.zielC_0786.toFixed(st)+' $</b><br>C 1.0: <b>'+abc.zielC_100.toFixed(st)+' $</b> ⭐<br>C 1.618: <b>'+abc.zielC_1618.toFixed(st)+' $</b>';
+  document.getElementById('abcInput').value = abc.welle;
+  document.getElementById('abcZielInput').value = 'C 1.0 = '+abc.zielC_100.toFixed(st)+' $ | C 1.618 = '+abc.zielC_1618.toFixed(st)+' $';
+}
+function setChartMode(mode){ chartMode = mode; document.getElementById('btnFull').classList.toggle('active', mode==='full'); document.getElementById('btnRecent').classList.toggle('active', mode==='recent'); if(fiboData && letzteCandles.length) zeichneAutoFiboChart(letzteCandles, fiboData, fiboFullData); }
+function zeichneAutoFiboChart(candles, fiboRecent, fiboFull){
+  let el = document.getElementById('autoFiboChart');
+  if(!fiboChart){ fiboChart = LightweightCharts.createChart(el, {layout:{background:{color:'#0d1117'}, textColor:'#c9d1d9'},grid:{vertLines:{color:'#161b22'}, horzLines:{color:'#161b22'}},timeScale:{timeVisible:true},rightPriceScale:{borderColor:'#30363d'},width: el.clientWidth, height: 380}); fiboCandleSeries = fiboChart.addCandlestickSeries({upColor:'#26a69a', downColor:'#ef5350', wickUpColor:'#26a69a', wickDownColor:'#ef5350'}); }
+  let showCandles = chartMode==='full' ? candles : candles.slice(-120); fiboCandleSeries.setData(showCandles);
+  fiboLines.forEach(l=>{ try{fiboCandleSeries.removePriceLine(l);}catch(e){} }); fiboLines=[];
+  if(fiboFull){ const colorsFull = {'0':'#3b82f6','0.236':'#60a5fa','0.382':'#2563eb','0.5':'#1d4ed8','0.618':'#f97316','0.786':'#93c5fd','1':'#ef4444','-0.272':'#14b8a6','-0.618':'#881337'}; Object.keys(fiboFull.levels).forEach(k=>{ let line = fiboCandleSeries.createPriceLine({price: fiboFull.levels[k], color: colorsFull[k]||'#3b82f6',lineWidth: (k==='0.382'||k==='0.618')?3:2,lineStyle: 0, axisLabelVisible:true, title: 'FULL '+k}); fiboLines.push(line); }); }
+  if(fiboRecent){ const colorsRecent = {'0':'#facc15','0.236':'#9ca3af','0.382':'#fb923c','0.5':'#22c55e','0.618':'#fb923c','0.786':'#a855f7','1':'#ef4444','-0.272':'#14b8a6','-0.618':'#881337'}; Object.keys(fiboRecent.levels).forEach(k=>{ let line = fiboCandleSeries.createPriceLine({price: fiboRecent.levels[k], color: colorsRecent[k]||'#fff',lineWidth: 1,lineStyle: 2, axisLabelVisible:true, title: 'SWING '+k}); fiboLines.push(line); }); }
+  if(elliottData){ [elliottData.p1.preis, elliottData.p3.preis, elliottData.p5.preis].forEach((z,i)=>{ let line = fiboCandleSeries.createPriceLine({price: z, color: '#22c55e', lineWidth: 2, lineStyle: 0, axisLabelVisible:true, title: 'ELLIOTT '+(i===0?'W1':i===1?'W3':'W5')}); fiboLines.push(line); }); }
+  if(abcData){ [abcData.zielC_100, abcData.zielC_1618].forEach((z,i)=>{ let line = fiboCandleSeries.createPriceLine({price: z, color: '#3b82f6', lineWidth: 2, lineStyle: 2, axisLabelVisible:true, title: i===0?'ABC C=1.0':'ABC C=1.618'}); fiboLines.push(line); }); }
+  fiboChart.timeScale().fitContent();
+}
+function berechneSmartMoney(candles){
+  if(!candles || candles.length < 30) return;
+  let last = candles[candles.length-1]; let lows20 = candles.slice(-21,-1).map(c=>c.low); let highs20 = candles.slice(-21,-1).map(c=>c.high); let minLow = Math.min(...lows20); let maxHigh = Math.max(...highs20);
+  if(last.low < minLow && last.close > minLow && last.close > last.open){ sweepSignal = 'BULLISH SWEEP 🟢🟢'; } else if(last.high > maxHigh && last.close < maxHigh && last.close < last.open){ sweepSignal = 'BEARISH SWEEP 🔴🔴'; } else { sweepSignal = 'KEIN SWEEP'; }
+  let c1 = candles[candles.length-3], c3 = candles[candles.length-1];
+  if(c1.high < c3.low){ fvgSignal = 'BULLISH FVG 🟢'; } else if(c1.low > c3.high){ fvgSignal = 'BEARISH FVG 🔴'; } else { fvgSignal = 'KEIN FVG'; }
+  document.getElementById('smartMoneyBox').innerHTML = '<b>'+sweepSignal+'</b>'; document.getElementById('fvgBox').innerHTML = fvgSignal;
+}
+async function holeFundingCheck(){
+  try{
+    let j = await fetchJSON('https://api.bybit.com/v5/market/funding/history?category=linear&symbol='+coin+'USDT&limit=1');
+    if(j && j.result && j.result.list && j.result.list.length){ fundingRate = parseFloat(j.result.list[0].fundingRate) * 100; }
+    let j2 = await fetchJSON('https://api.bybit.com/v5/market/open-interest?category=linear&symbol='+coin+'USDT&intervalTime=60min&limit=2');
+    if(j2 && j2.result && j2.result.list && j2.result.list.length >= 1){ openInterest = parseFloat(j2.result.list[0].openInterest); }
+    if(fundingRate < -0.05) fundingSignal = 'EXTREM NEGATIV 🟢'; else if(fundingRate < -0.01) fundingSignal = 'NEGATIV 🟢'; else if(fundingRate > 0.05) fundingSignal = 'EXTREM POSITIV 🔴'; else if(fundingRate > 0.01) fundingSignal = 'POSITIV 🔴'; else fundingSignal = 'NEUTRAL';
+    document.getElementById('fundingBox').innerHTML = 'Funding: <b>'+fundingRate.toFixed(4)+' %</b> | OI: <b>'+openInterest.toLocaleString('de-DE')+' '+coin+'</b><br>'+fundingSignal;
+  }catch(e){ document.getElementById('fundingBox').innerText = 'Funding nicht ladbar'; }
+}
+function berechneTradingScore(signalKurz, rsiBitrue, macd, inGolden, btcSig){
+  let score = 50; let details = [];
+  if(signalKurz==='BULLISCH'){ score+=15; details.push('Fibo BULLISCH +15'); } if(signalKurz==='BÄRISCH'){ score-=15; details.push('Fibo BÄRISCH -15'); }
+  if(inGolden && rsiBitrue < 45){ score+=10; details.push('Golden Zone +10'); } if(inGolden && rsiBitrue > 55){ score-=10; details.push('Golden Zone -10'); }
+  if(rsiBitrue < 30){ score+=12; details.push('RSI überverkauft +12'); } else if(rsiBitrue < 40){ score+=6; details.push('RSI tief +6'); } else if(rsiBitrue > 70){ score-=12; details.push('RSI überkauft -12'); } else if(rsiBitrue > 60){ score-=6; details.push('RSI hoch -6'); }
+  if(macd > 0){ score+=5; details.push('MACD +5'); } else { score-=5; details.push('MACD -5'); }
+  if(btcSig==='BULLISCH'){ score+=10; details.push('BTC +10'); } if(btcSig==='BÄRISCH'){ score-=10; details.push('BTC -10'); }
+  if(divergenzSignal.includes('BULLISCHE')){ score+=12; details.push('Bull. Div. +12'); } if(divergenzSignal.includes('BÄRISCHE')){ score-=12; details.push('Bär. Div. -12'); }
+  if(volumenSignal.includes('ECHT')){ score+=8; details.push('Volumen ECHT +8'); } if(volumenSignal.includes('FAKE')){ score-=10; details.push('Volumen FAKE -10'); } if(volumenSignal.includes('PANIK')){ score-=8; details.push('Volumen PANIK -8'); }
+  if(sweepSignal.includes('BULLISH')){ score+=18; details.push('Sweep +18 🔥'); } if(sweepSignal.includes('BEARISH')){ score-=18; details.push('Sweep -18 🔥'); }
+  if(fundingRate < -0.05){ score+=10; details.push('Funding +10'); } if(fundingRate > 0.05){ score-=10; details.push('Funding -10'); }
+  if(abcData && abcData.scoreBonus){ score += abcData.scoreBonus; details.push('ABC '+abcData.welle+' '+(abcData.scoreBonus>=0?'+':'')+abcData.scoreBonus); }
+  if(elliottData && elliottData.bonus){ score += elliottData.bonus; details.push('Elliott '+elliottData.welle+' '+(elliottData.bonus>=0?'+':'')+elliottData.bonus); }
+  if(usdtSignal==='BULLISCH FÜR BTC 🟢'){ score+=12; details.push('💵 USDT.D FÄLLT +12'); } if(usdtSignal==='BÄRISCH FÜR BTC 🔴'){ score-=12; details.push('💵 USDT.D STEIGT -12'); }
+  if(altSignal==='ALTSEASON 🟢🟢'){ score+=15; details.push('🚀 ALTSEASON +15'); }
+  if(altSignal==='ALTS STARK 🟢'){ score+=8; details.push('🟢 ALTS STARK +8'); }
+  if(altSignal==='BTC SEASON 🔴'){ score-=10; details.push('🟠 BTC SEASON -10'); }
+  if(altSignal==='ALT CRASH 🔴🔴'){ score-=15; details.push('🔴 ALT CRASH -15'); }
+  let gross = letzteAnalyse['1M'] ? letzteAnalyse['1M'].signal : (letzteAnalyse['1w'] ? letzteAnalyse['1w'].signal : null);
+  if(gross && gross===signalKurz){ score+=10; details.push('🌍 1M/1W Trend bestätigt +10'); }
+  if(gross && gross!==signalKurz && gross!=='BODENBILDUNG'){ score-=10; details.push('🌍 1M/1W Trend gegen dich -10'); }
+  score = Math.max(0, Math.min(100, score)); tradingScore = score;
+  let text, farbe, badge;
+  if(score >= 80){ text='STARK KAUFEN 🚀'; farbe='#22c55e'; badge='<span class="badge badge-green">STARK KAUFEN</span>'; } else if(score >= 65){ text='KAUFEN 🟢'; farbe='#22c55e'; badge='<span class="badge badge-green">KAUFEN</span>'; } else if(score >= 45){ text='NEUTRAL / WARTEN 🟡'; farbe='#facc15'; badge='<span class="badge badge-yellow">WARTEN</span>'; } else if(score >= 30){ text='VERKAUFEN 🔴'; farbe='#ef4444'; badge='<span class="badge badge-red">VERKAUFEN</span>'; } else { text='STARK VERKAUFEN 💥'; farbe='#ef4444'; badge='<span class="badge badge-red">STARK VERKAUFEN</span>'; }
+  document.getElementById('scoreBig').innerText = score; document.getElementById('scoreBig').style.color = farbe; document.getElementById('scoreBadge').innerHTML = badge + ' - ' + text; document.getElementById('scoreBar').style.width = score + '%'; document.getElementById('scoreBar').style.background = farbe; document.getElementById('scoreDetail').innerHTML = details.join('<br>'); return score;
+}
+async function holeBTCCheck(){
+ try{
+  let candles = await holeKerzenMitHighLow('BTCUSDT','1h');
+  if(candles && candles.length>50){
+    let closes=candles.map(c=>c.close); btcPreis=closes[closes.length-1]; btcRSI=berechneRSI_EXAKT(closes,14); let ema50=berechneEMA_EXAKT(closes,50);
+    if(btcPreis>ema50 && btcRSI>50) btcSignal='BULLISCH'; else if(btcPreis<ema50 && btcRSI<50) btcSignal='BÄRISCH'; else btcSignal='NEUTRAL';
+    let farbe=btcSignal==='BULLISCH'?'#22c55e':btcSignal==='BÄRISCH'?'#ef4444':'#facc15'; document.getElementById('btcBox').innerHTML='<b style="color:'+farbe+'">BTC: '+btcSignal+'</b> - '+btcPreis.toFixed(0)+' $ | RSI '+btcRSI.toFixed(1); return true;
+  }
+ }catch(e){}
+ btcSignal='UNBEKANNT'; document.getElementById('btcBox').innerText='BTC nicht ladbar'; return false;
+}
+async function holeVolumenCheck(){
+ try{ let candles = await holeKerzenMitHighLow(coin+'USDT', TF_BINANCE[timeframe]); if(!candles || candles.length<10) throw new Error('keine Kerzen'); let vols=candles.slice(-50).map(c=>c.vol||0); let closes=candles.slice(-50).map(c=>c.close); let volSchnitt=vols.slice(0,40).reduce((a,b)=>a+b,0)/40; let volJetzt=vols[vols.length-1]; letztesVolumen=volJetzt; let preisSteigt=closes[closes.length-1]>closes[closes.length-2]; if(preisSteigt && volJetzt>volSchnitt*1.2) volumenSignal='ECHT ✅'; else if(preisSteigt && volJetzt<volSchnitt*0.8) volumenSignal='FAKE ⚠️'; else if(!preisSteigt && volJetzt>volSchnitt*1.5) volumenSignal='PANIK 🔴'; else volumenSignal='NEUTRAL'; document.getElementById('volumenInput').value=volumenSignal; return true; }catch(e){ volumenSignal='Volumen nicht ladbar'; document.getElementById('volumenInput').value=volumenSignal; return false; }
+}
+function berechneDivergenz(closes){ if(!closes || closes.length<30) return 'KEINE'; let letzte30=closes.slice(-30); let erste=letzte30.slice(0,15), zweite=letzte30.slice(15); let tief1=Math.min(...erste), tief2=Math.min(...zweite); let hoch1=Math.max(...erste), hoch2=Math.max(...zweite); let rsi1=berechneRSI_EXAKT(closes.slice(0,closes.length-15),14); let rsi2=berechneRSI_EXAKT(closes,14); if(tief2<tief1 && rsi2>rsi1) return 'BULLISCHE DIVERGENZ 🟢'; if(hoch2>hoch1 && rsi2<rsi1) return 'BÄRISCHE DIVERGENZ 🔴'; return 'KEINE'; }
+async function holeKerzenMitHighLow(sym, interval){
+  let bybitI = TF_BYBIT[timeframe] || 'D';
+  let bitgetI = TF_BITGET[timeframe] || '1D';
+  let okxI = timeframe==='15m' ? '15m' : timeframe==='1h' ? '1H' : timeframe==='1d' ? '1D' : timeframe==='1w' ? '1W' : timeframe==='1M' ? '1M' : '1D';
+  let krakenI = timeframe==='15m' ? 15 : timeframe==='1h' ? 60 : timeframe==='1d' ? 1440 : timeframe==='1w' ? 10080 : timeframe==='1M' ? 43200 : 1440;
+  let cbGran = timeframe==='15m' ? 900 : timeframe==='1h' ? 3600 : timeframe==='1d' ? 86400 : timeframe==='1w' ? 604800 : timeframe==='1M' ? 2592000 : 86400;
+  let base = sym.replace('USDT','');
+  if(sym==='BTCUSDT' && interval==='1h'){ okxI='1H'; krakenI=60; cbGran=3600; }
+  try{
+    let d = await fetchJSON('https://api.exchange.coinbase.com/products/'+base+'-USD/candles?granularity='+cbGran);
+    if(Array.isArray(d) && d.length>=20){ logDebug('✅ Coinbase GEHT für '+base+' '+timeframe); return d.slice().reverse().map(k=>({time:k[0], open:k[3], high:k[2], low:k[1], close:k[4], vol:k[5]})); }
+  }catch(e){}
+  try{
+    let j = await fetchJSON('https://api.kraken.com/0/public/OHLC?pair='+base+'USD&interval='+krakenI);
+    if(j && j.result){ let key = Object.keys(j.result).find(k=>k!=='last'); if(key && j.result[key].length>=20){ logDebug('✅ Kraken GEHT für '+base); return j.result[key].map(k=>({time:Number(k[0]), open:parseFloat(k[1]), high:parseFloat(k[2]), low:parseFloat(k[3]), close:parseFloat(k[4]), vol:parseFloat(k[6])})); } }
+  }catch(e){}
+  try{
+    let j = await fetchJSON('https://www.okx.com/api/v5/market/candles?instId='+base+'-USDT&bar='+okxI+'&limit=300');
+    if(j && j.data && j.data.length>=20){ logDebug('✅ OKX GEHT für '+base); return j.data.slice().reverse().map(k=>({time:Math.floor(Number(k[0])/1000), open:parseFloat(k[1]), high:parseFloat(k[2]), low:parseFloat(k[3]), close:parseFloat(k[4]), vol:parseFloat(k[5])})); }
+  }catch(e){}
+  try{
+    let j = await fetchJSON('https://api.bitget.com/api/v2/spot/market/candles?symbol='+sym+'&granularity='+bitgetI+'&limit=1000');
+    if(j && j.data && j.data.length>=20){ return j.data.slice().reverse().map(k=>({time:Math.floor(Number(k[0])/1000), open:parseFloat(k[1]), high:parseFloat(k[2]), low:parseFloat(k[3]), close:parseFloat(k[4]), vol:parseFloat(k[5])})); }
+  }catch(e){}
+  try{
+    let j = await fetchJSON('https://api.bybit.com/v5/market/kline?category=spot&symbol='+sym+'&interval='+bybitI+'&limit=1000');
+    if(j && j.result && j.result.list && j.result.list.length>=20){ return j.result.list.slice().reverse().map(k=>({time:Math.floor(Number(k[0])/1000), open:parseFloat(k[1]), high:parseFloat(k[2]), low:parseFloat(k[3]), close:parseFloat(k[4]), vol:parseFloat(k[5])})); }
+  }catch(e){}
+  try{
+    let d = await fetchJSON('https://api.binance.com/api/v3/klines?symbol='+sym+'&interval='+interval+'&limit=1000');
+    if(Array.isArray(d) && d.length>=20){ return d.map(k=>({time:Math.floor(k[0]/1000), open:parseFloat(k[1]), high:parseFloat(k[2]), low:parseFloat(k[3]), close:parseFloat(k[4]), vol:parseFloat(k[5])})); }
+  }catch(e){}
+  return [];
+}
+async function holeKerzenFuerCoin(coinName, interval){
+  let candles = await holeKerzenMitHighLow(coinName+'USDT', interval);
+  if(!candles || candles.length < 20){ return {einzel:{}, results:[], closesBitrue:null, closesFallback:null, candles:[]}; }
+  let closes = candles.map(c=>c.close);
+  let rsi = berechneRSI_EXAKT(closes,14);
+  return {einzel:{'Bitrue':rsi, 'Binance':rsi, 'Bybit':rsi}, results:[rsi], closesBitrue:closes, closesFallback:closes, candles:candles};
+}
+async function holeECHTEN_RSI(){
+ const interval=TF_BINANCE[timeframe];
+ logDebug('--- Lade '+coin+' '+timeframe.toUpperCase()+' ---');
+ document.getElementById('rsiVerified').innerText='⏳ Hole Kerzen für '+coin+' '+timeframe.toUpperCase()+'...';
+ holeMarktDominanz().catch(()=>{});
+ let {einzel, results, closesBitrue, closesFallback, candles} = await holeKerzenFuerCoin(coin, interval);
+ if(!results.length){ document.getElementById('rsiVerified').innerText='❌ Alle Börsen blockiert - tippe auf 🔧 ALLE QUELLEN TESTEN!'; document.getElementById('rsiBig').innerText='--'; return null; }
+ results.sort((a,b)=>a-b); let median=results[Math.floor(results.length/2)];
+ let closes=closesBitrue||closesFallback; let macd=0; if(closes){ macd=(berechneEMA_EXAKT(closes,12)-berechneEMA_EXAKT(closes,26))*0.1; }
+ let preis=closes?closes[closes.length-1]:parseFloat(document.getElementById('preis').value);
+ let fullCandles = candles && candles.length>=20 ? candles : await holeKerzenMitHighLow(coin+'USDT', interval);
+ if(fullCandles.length>=20){
+   letzteCandles = fullCandles;
+   let swingFull = findeSwingFull(fullCandles); let fiboFullCalc = berechneAutoFibos(swingFull.swingHigh, swingFull.swingLow, swingFull.isUp);
+   fiboFullData = {swingHigh: swingFull.swingHigh, swingLow: swingFull.swingLow, isUp: swingFull.isUp, levels: fiboFullCalc.levels, diff: fiboFullCalc.diff, totalCandles: swingFull.totalCandles};
+   let swingRecent = findeSwingRecent(fullCandles); let fiboRecentCalc = berechneAutoFibos(swingRecent.swingHigh, swingRecent.swingLow, swingRecent.isUp);
+   fiboData = {swingHigh: swingRecent.swingHigh, swingLow: swingRecent.swingLow, isUp: swingRecent.isUp, levels: fiboRecentCalc.levels, diff: fiboRecentCalc.diff};
+   letztesHoch = swingFull.swingHigh; letztesTief = swingFull.swingLow; letzteCloses = fullCandles.map(c=>c.close).slice(-100);
+   let ell = berechneElliott(fullCandles); zeigeElliott(ell);
+   let abc = berechneABC(fullCandles); zeigeABC(abc);
+   zeichneAutoFiboChart(fullCandles, fiboData, fiboFullData);
+   let st2 = stellenFuerCoin(coin); document.getElementById('autoHoch').value=letztesHoch.toFixed(st2); document.getElementById('autoTief').value=letztesTief.toFixed(st2);
+   document.getElementById('fiboChartLabel').innerText=timeframe.toUpperCase()+' - '+coin+' - '+fullCandles.length+' Kerzen';
+   document.getElementById('fiboSwingInfo').innerHTML='🔵 FULL: Hoch <b>'+swingFull.swingHigh.toFixed(st2)+' $</b> | Tief <b>'+swingFull.swingLow.toFixed(st2)+' $</b> | '+fullCandles.length+' Kerzen<br>🟠 SWING: Hoch '+swingRecent.swingHigh.toFixed(st2)+' $ | Tief '+swingRecent.swingLow.toFixed(st2)+' $ | Preis: <b>'+preis.toFixed(st2)+' $</b>';
+   let fFull0382=fiboFullData.levels['0.382'], fFull0618=fiboFullData.levels['0.618']; let loFull=Math.min(fFull0382,fFull0618), hiFull=Math.max(fFull0382,fFull0618);
+   let posFull = (preis>=loFull && preis<=hiFull) ? '🎯 IN FULL GOLDEN ZONE!' : (preis>hiFull ? 'Über FULL Golden Zone' : 'Unter FULL Golden Zone');
+   document.getElementById('fiboFullBox').innerHTML='<b>🔵 FULL Fibo ('+fullCandles.length+' Kerzen):</b><br>Golden Zone FULL: <b>'+loFull.toFixed(st2)+' $ - '+hiFull.toFixed(st2)+' $</b><br>Preis: '+preis.toFixed(st2)+' $ - '+posFull;
+   let f0382=fiboData.levels['0.382'], f0618=fiboData.levels['0.618']; let lo=Math.min(f0382,f0618), hi=Math.max(f0382,f0618); let pos = (preis>=lo && preis<=hi) ? '🎯 IN SWING GOLDEN ZONE!' : (preis>hi ? 'Über Swing' : 'Unter Swing');
+   document.getElementById('fiboPosInput').value=pos+' | FULL: '+posFull;
+   document.getElementById('fiboGoldenBox').innerHTML='<b>🟠 SWING Golden Zone: '+lo.toFixed(st2)+' $ - '+hi.toFixed(st2)+' $</b><br>Preis: '+preis.toFixed(st2)+' $ - '+pos;
+   logDebug('✅ '+coin+' '+timeframe+' OK: Preis '+preis.toFixed(st2)+' $ RSI '+median.toFixed(1));
+ } else if(closes && closes.length>20){ letzteCloses=closes.slice(-100); letztesHoch=Math.max(...letzteCloses); letztesTief=Math.min(...letzteCloses); let st=stellenFuerCoin(coin); document.getElementById('autoHoch').value=letztesHoch.toFixed(st); document.getElementById('autoTief').value=letztesTief.toFixed(st); let diff=letztesHoch-letztesTief; fiboData={swingHigh:letztesHoch, swingLow:letztesTief, isUp:true, diff:diff, levels:{'0':letztesHoch,'0.236':letztesHoch-diff*0.236,'0.382':letztesHoch-diff*0.382,'0.5':letztesHoch-diff*0.5,'0.618':letztesHoch-diff*0.618,'0.786':letztesHoch-diff*0.786,'1':letztesTief,'-0.272':letztesHoch+diff*0.272,'-0.618':letztesHoch+diff*0.618}}; fiboFullData=fiboData; }
+ await holeBTCCheck();
+ if(btcDominanz>0) berechneDominanzSignale();
+ await holeVolumenCheck();
+ divergenzSignal=berechneDivergenz(closes); document.getElementById('divergenzInput').value=divergenzSignal;
+ berechneSmartMoney(fullCandles.length?fullCandles:[]); await holeFundingCheck();
+ let st=stellenFuerCoin(coin);
+ document.getElementById('rsi14').value=median.toFixed(2); document.getElementById('rsiBitrue').value=einzel['Bitrue']?einzel['Bitrue'].toFixed(2):''; document.getElementById('rsiBinance').value=einzel['Binance']?einzel['Binance'].toFixed(2):''; document.getElementById('rsiBybit').value=einzel['Bybit']?einzel['Bybit'].toFixed(2):''; document.getElementById('rsiBitget').value=einzel['Bitget']?einzel['Bitget'].toFixed(2):'';
+ document.getElementById('macd').value=macd.toFixed(4); document.getElementById('preis').value=preis.toFixed(st); speicher[coin][timeframe].preis=preis;
+ document.getElementById('rsiBig').innerText=median.toFixed(2); document.getElementById('rsiLabel').innerText=timeframe.toUpperCase()+' - '+coin;
+ let farbe=median<30?'#22c55e':median<70?'#facc15':'#ef4444'; document.getElementById('rsiBig').style.color=farbe; document.getElementById('rsiBarFill').style.width=median+'%'; document.getElementById('rsiBarFill').style.background=farbe;
+ let badgeText=median<30?'ÜBERVERKAUFT - Boden!':median<40?'Fast überverkauft':median<50?'Neutral, leicht bärisch':median<70?'Neutral, leicht bullisch':'ÜBERKAUFT - Vorsicht!'; document.getElementById('rsiBadge').innerHTML='<span class="badge '+(median<30?'badge-green':median<70?'badge-yellow':'badge-red')+'">'+badgeText+'</span>';
+ let detailHtml='<table>'; ['Bitrue','Binance','Bybit'].forEach(q=>{ if(einzel[q]!==undefined) detailHtml+='<tr><td>'+(q==='Bitrue'?'⭐ <b>'+q+'</b>':q)+'</td><td style="text-align:right"><b>'+einzel[q].toFixed(2)+'</b></td></tr>'; else detailHtml+='<tr><td>'+q+'</td><td style="text-align:right;color:#ef4444">blockiert</td></tr>'; }); detailHtml+='<tr><td><b>MEDIAN</b></td><td style="text-align:right"><b>'+median.toFixed(2)+'</b></td></tr></table>'; document.getElementById('quellenDetail').innerHTML=detailHtml;
+ document.getElementById('rsiVerified').innerText='✅ VERIFIZIERT: '+fullCandles.length+' Kerzen | BTC.D '+btcDominanz.toFixed(2)+'% | ALT.D '+altDominanz.toFixed(2)+'%';
+ document.getElementById('liveInfo').innerText='✅ '+new Date().toLocaleTimeString('de-DE')+' - FULL: '+letztesHoch.toFixed(st)+' $ / '+letztesTief.toFixed(st)+' $';
+ document.getElementById('lastUpdate').innerText=new Date().toLocaleTimeString('de-DE');
+ alleCoinsRSI[coin]={rsi:median, rsiBitrue:einzel['Bitrue']||median, preis:preis}; updateAlleCoinsAnzeige(); berechnen(); return median;
+}
+async function ladeAlleCoins(){ document.getElementById('alleCoins').innerText='⏳ Scanne alle Coins...'; let interval=TF_BINANCE[timeframe]; for(let c of ALL_COINS){ let {einzel, results, closesBitrue, closesFallback}=await holeKerzenFuerCoin(c, interval); if(results.length){ let s=[...results].sort((a,b)=>a-b); let median=s[Math.floor(s.length/2)]; let closes=closesBitrue||closesFallback; alleCoinsRSI[c]={rsi:median, rsiBitrue:einzel['Bitrue']||median, preis:closes?closes[closes.length-1]:0}; } } updateAlleCoinsAnzeige(); }
+function updateAlleCoinsAnzeige(){ let html='<table><tr><td><b>Coin</b></td><td><b>Preis</b></td><td><b>RSI</b></td><td><b>Median</b></td><td><b>Status</b></td></tr>'; for(let c of ALL_COINS){ if(alleCoinsRSI[c]){ let r=alleCoinsRSI[c].rsi; let stt=r<30?'🟢 Überverkauft':r<40?'🟡 Fast überverkauft':r<70?'⚪ Neutral':'🔴 Überkauft'; let st=stellenFuerCoin(c); html+='<tr><td><b>'+c+'</b></td><td>'+alleCoinsRSI[c].preis.toFixed(st)+' $</td><td><b>'+alleCoinsRSI[c].rsiBitrue.toFixed(1)+'</b></td><td><b>'+r.toFixed(1)+'</b></td><td>'+stt+'</td></tr>'; } else html+='<tr><td><b>'+c+'</b></td><td>-</td><td>-</td><td>-</td><td>Noch nicht gescannt</td></tr>'; } html+='</table>'; document.getElementById('alleCoins').innerHTML=html; }
+function updateTV(){ let sym=TV_SYMBOL[coin]||'BINANCE%3AKSMUSDT'; let interval=TF_TV[timeframe]; document.getElementById('tvFrame').src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_123&symbol="+sym+"&interval="+interval+"&hidesidetoolbar=0&hidetoptoolbar=0&symboledit=1&saveimage=1&toolbarbg=&studies=[]&hideideas=1&theme=dark&style=1&timezone=Europe%2FBerlin&locale=de&utm_source=&utm_medium=widget&utm_campaign=chart&utm_term="+sym; document.getElementById('tvLabel').innerText=TF_LABEL[timeframe]+" - "+coin; }
+function setTimeframe(tf){
+ timeframe=tf;
+ ['15m','1h','1d','1w','1M'].forEach(t=>{ let id = t==='15m' ? 'btn15m' : t==='1h' ? 'btn1H' : t==='1d' ? 'btn1D' : t==='1w' ? 'btn1W' : 'btn1M'; document.getElementById(id).classList.toggle('active', tf===t); });
+ document.getElementById('analyseLabel').innerText=TF_LABEL[tf];
+ document.getElementById('fibLabel').innerText=tf.toUpperCase();
+ document.getElementById('planLabel').innerText=tf.toUpperCase();
+ ladeWerte(); updateTfInfo(); updateTV();
+ countdownSek=TF_UPDATE[tf] || 30*60;
+ letztesHoch=0; letztesTief=0; fiboData=null; fiboFullData=null; abcData=null; elliottData=null;
+ holeECHTEN_RSI();
+}
+function updateTfInfo(){
+ let txt = timeframe==='15m' ? '<b>⚡ 15M:</b> Update alle 1 Min.' : timeframe==='1h' ? '<b>🕐 1H:</b> Update alle 5 Min.' : timeframe==='1d' ? '<b>📅 1D:</b> Update alle 30 Min.' : timeframe==='1w' ? '<b>📅 1W:</b> Update alle 1 Std.' : '<b>📅 1M:</b> Update alle 24 Std.';
+ document.getElementById('tfInfo').innerHTML=txt;
+}
+function ladeWerte(){ let d=speicher[coin][timeframe]; if(!d) return; document.getElementById('einstieg').value=d.einstieg; document.getElementById('preis').value=d.preis; document.getElementById('coinInfo').innerHTML=COIN_INFO[coin]||''; }
+function speichereWerte(){ let d=speicher[coin][timeframe]; if(d) d.einstieg=parseFloat(document.getElementById('einstieg').value)||d.einstieg; }
+function setCoin(c){ try{speichereWerte();}catch(e){} coin=c; ALL_COINS.forEach(x=>{ let el=document.getElementById('b'+x); if(el) el.classList.toggle('active',x===c); }); ladeWerte(); updateTV(); letztesHoch=0; letztesTief=0; fiboData=null; fiboFullData=null; abcData=null; elliottData=null; holeECHTEN_RSI(); berechnen(); }
+function startCountdown(){ if(autoTimer) clearInterval(autoTimer); autoTimer=setInterval(()=>{ countdownSek--; if(countdownSek<=0){ countdownSek=TF_UPDATE[timeframe] || 30*60; holeECHTEN_RSI(); } let m=Math.floor(countdownSek/60); let s=countdownSek%60; let h=Math.floor(countdownSek/3600); if(countdownSek>=3600){ document.getElementById('countdown').innerText=h+':'+String(Math.floor((countdownSek%3600)/60)).padStart(2,'0')+':'+String(s).padStart(2,'0'); } else { document.getElementById('countdown').innerText=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); } },1000); }
+function manuellUpdate(){ holeECHTEN_RSI(); }
+function berechnen(){
+ speichereWerte();
+ const preis=parseFloat(document.getElementById('preis').value);
+ const rsi14=parseFloat(document.getElementById('rsi14').value)||50;
+ const rsiBitrue=parseFloat(document.getElementById('rsiBitrue').value)||rsi14;
+ const macd=parseFloat(document.getElementById('macd').value)||0;
+ const einstieg=parseFloat(document.getElementById('einstieg').value)||preis;
+ if(!preis) return;
+ let st=stellenFuerCoin(coin);
+ let fibFull = fiboFullData ? fiboFullData.levels : null; let fib = fibFull ? fibFull : (fiboData ? fiboData.levels : null);
+ let hochFibo=letztesHoch; let tiefFibo=letztesTief;
+ if(!fib){ if(!hochFibo || !tiefFibo || hochFibo<=preis*0.5 || tiefFibo>=preis*1.5){ hochFibo=preis*1.15; tiefFibo```html
+; hochFibo=preis*1.15; tiefFibo=preis*0.85; } const diff=hochFibo-tiefFibo; fib={'0':hochFibo,'0.236':hochFibo-diff*0.236,'0.382':hochFibo-diff*0.382,'0.5':hochFibo-diff*0.5,'0.618':hochFibo-diff*0.618,'0.786':hochFibo-diff*0.786,'1':tiefFibo,'-0.272':hochFibo+diff*0.272,'-0.618':hochFibo+diff*0.618}; fibFull=fib; }
+ const diff=hochFibo-tiefFibo;
+ let punkteBullisch=0, punkteBaerisch=0;
+ if(preis > fib['0.382']) punkteBullisch++; else punkteBaerisch++;
+ if(preis > fib['0.5']) punkteBullisch++; else punkteBaerisch++;
+ let inGolden = preis >= Math.min(fib['0.382'],fib['0.618']) && preis <= Math.max(fib['0.382'],fib['0.618']);
+ if(inGolden && rsiBitrue < 45) punkteBullisch+=1; if(inGolden && rsiBitrue > 55) punkteBaerisch+=1;
+ if(rsiBitrue < 30) punkteBullisch+=2; else if(rsiBitrue < 40) punkteBullisch+=1; else if(rsiBitrue > 70) punkteBaerisch+=2; else if(rsiBitrue > 60) punkteBaerisch+=1;
+ if(macd > 0) punkteBullisch++; else punkteBaerisch++;
+ let signal, farbe, badge, signalKurz, begruendung;
+ if(punkteBullisch>=3 && punkteBaerisch<=1){ signal='🟢 BULLISCH'; farbe='green'; badge='<span class="badge badge-green">BULLISCH</span>'; signalKurz='BULLISCH'; begruendung='Preis über FULL Fibo 0.382 ('+fib['0.382'].toFixed(st)+' $), RSI '+rsiBitrue.toFixed(1)+' und MACD passen.'; }
+ else if(punkteBaerisch>=3 && punkteBullisch<=1){ signal='🔴 BÄRISCH'; farbe='red'; badge='<span class="badge badge-red">BÄRISCH</span>'; signalKurz='BÄRISCH'; begruendung='Preis unter FULL Fibo 0.382, RSI '+rsiBitrue.toFixed(1)+' zeigt runter.'; }
+ else { signal='🟡 NEUTRAL / BODENBILDUNG'; farbe='yellow'; badge='<span class="badge badge-yellow">BODENBILDUNG</span>'; signalKurz='BODENBILDUNG'; begruendung='Widerspruch: Preis vs RSI. Warten.'; }
+ letzteAnalyse[timeframe]={signal:signalKurz, rsi14:rsi14, preis:preis};
+ let dreiZeitenFazit=''; let darfTraden=true;
+ let tfs = ['15m','1h','1d','1w','1M'];
+ let alleDa = tfs.every(t=>letzteAnalyse[t]);
+ if(alleDa){
+   let sigs = tfs.map(t=>letzteAnalyse[t].signal);
+   let alleGleich = sigs.every(s=>s===sigs[0]);
+   if(alleGleich){ dreiZeitenFazit='✅ ALLE 5 GLEICH: '+sigs[0]; }
+   else {
+     let gross = letzteAnalyse['1M'].signal, w = letzteAnalyse['1w'].signal, d = letzteAnalyse['1d'].signal;
+     if(gross===w && w===d){ dreiZeitenFazit='✅ 1M+1W+1D sagen '+d; }
+     else if(w===d){ dreiZeitenFazit='⚠️ 1W+1D sagen '+d+', 1M sagt '+gross; }
+     else { dreiZeitenFazit='🚫 WIDERSPRUCH - 1M: '+gross+' | 1W: '+w+' | 1D: '+d; darfTraden=false; }
+   }
+ } else if(letzteAnalyse['1d'] && letzteAnalyse['1w'] && letzteAnalyse['1M']){
+   if(letzteAnalyse['1d'].signal===letzteAnalyse['1w'].signal && letzteAnalyse['1w'].signal===letzteAnalyse['1M'].signal) dreiZeitenFazit='✅ 1D+1W+1M GLEICH: '+letzteAnalyse['1d'].signal;
+   else dreiZeitenFazit='⚠️ 1D: '+letzteAnalyse['1d'].signal+' | 1W: '+letzteAnalyse['1w'].signal+' | 1M: '+letzteAnalyse['1M'].signal;
+ } else { dreiZeitenFazit='⏳ Tipp alle 5 Timeframes einmal an.'; }
+ let btcFazit=''; if(btcSignal==='BÄRISCH' && signalKurz==='BULLISCH'){ btcFazit='🚫 BTC BÄRISCH - blockiert.'; darfTraden=false; } else if(btcSignal==='BULLISCH' && signalKurz==='BULLISCH'){ btcFazit='✅ BTC BULLISCH - Rückenwind!'; } else if(btcSignal==='BÄRISCH' && signalKurz==='BÄRISCH'){ btcFazit='✅ BTC BÄRISCH - Bestätigt!'; } else { btcFazit='BTC: '+btcSignal+' ('+btcPreis.toFixed(0)+' $)'; }
+ let volFazit='📊 Volumen: '+volumenSignal; if(volumenSignal.includes('FAKE')) darfTraden=false;
+ let divFazit='🔍 Divergenz: '+divergenzSignal; if(divergenzSignal.includes('BÄRISCHE') && signalKurz==='BULLISCH'){ darfTraden=false; }
+ let abcFazit='🔤 ABC: '+abcSignal;
+ let elliottFazit='🌊 Elliott: '+elliottSignal;
+ let usdtFazit='💵 USDT.D: '+usdtDominanz.toFixed(2)+'% '+usdtTrend+' → '+usdtSignal;
+ let domFazit='🌍 BTC.D: '+btcDominanz.toFixed(2)+'% '+btcDomTrend+' | ETH.D: '+ethDominanz.toFixed(2)+'% | ALT.D: '+altDominanz.toFixed(2)+'% '+altDomTrend+' → '+altSignal;
+ let finaleEntscheidung=darfTraden?'✅ DARFST TRADEN':'🚫 NICHT TRADEN - Blockiert!'; let finaleFarbe=darfTraden?'#22c55e':'#ef4444';
+ let score = berechneTradingScore(signalKurz, rsiBitrue, macd, inGolden, btcSignal);
+ let ls = berechneLongShort(signalKurz, score, preis, fib, darfTraden);
+ document.getElementById('checklisteBox').innerHTML= (darfTraden?'✅':'🚫')+' <b>'+finaleEntscheidung+'</b> | 🧠 Score: <b>'+score+'/100</b> | 👉 <b>'+ls+'</b><br><br>'+ '• 5-Zeiten: '+dreiZeitenFazit+'<br>'+ '• BTC: '+btcFazit+'<br>'+ '• 🌍 Dominanz: '+domFazit+'<br>'+ '• 💵 USDT: '+usdtFazit+'<br>'+ '• Volumen: '+volumenSignal+'<br>'+ '• Divergenz: '+divergenzSignal+'<br>'+ '• FULL Fibo: '+hochFibo.toFixed(st)+' $ / '+tiefFibo.toFixed(st)+' $ | '+(inGolden?'IN Golden Zone 🎯':'ausserhalb')+'<br>'+ '• 🌊 Elliott: '+elliottSignal+'<br>'+ '• 🔤 ABC: '+abcSignal+'<br>'+ '• Smart Money: '+sweepSignal+'<br>'+ '• Funding: '+fundingRate.toFixed(4)+' % - '+fundingSignal;
+ if(alleDa){
+   let m15=letzteAnalyse['15m'], h=letzteAnalyse['1h'], d=letzteAnalyse['1d'], w=letzteAnalyse['1w'], mo=letzteAnalyse['1M'];
+   let alleGleich = m15.signal===h.signal && h.signal===d.signal && d.signal===w.signal && w.signal===mo.signal;
+   let fazit, af, at;
+   if(alleGleich && m15.signal==='BULLISCH'){ fazit='✅ ALLE 5 GLEICH: BULLISCH!'; af='#22c55e'; at='🟢🟢🟢🟢🟢 ALLE GRÜN - KAUFEN'; }
+   else if(alleGleich && m15.signal==='BÄRISCH'){ fazit='🔴 ALLE 5 GLEICH: BÄRISCH!'; af='#ef4444'; at='🔴🔴🔴🔴🔴 ALLE ROT - RAUS'; }
+   else if(alleGleich){ fazit='🟡 ALLE 5 GLEICH: BODENBILDUNG'; af='#facc15'; at='🟡🟡🟡🟡🟡 ALLE GELB - WARTEN'; }
+   else if(w.signal===mo.signal && d.signal===w.signal){ fazit='✅ 1M+1W+1D einig: '+d.signal; af='#22c55e'; at='✅ GROSSER TREND EINIG: '+d.signal; }
+   else { fazit='⚠️ WIDERSPRUCH - NICHT TRADEN!'; af='#ef4444'; at='🚫 WIDERSPRUCH - NICHT TRADEN'; }
+   document.getElementById('vergleich').innerHTML='<b>15M:</b> '+m15.signal+' | RSI '+m15.rsi14.toFixed(1)+'<br><b>1H:</b> '+h.signal+' | RSI '+h.rsi14.toFixed(1)+'<br><b>1D:</b> '+d.signal+' | RSI '+d.rsi14.toFixed(1)+'<br><b>1W:</b> '+w.signal+' | RSI '+w.rsi14.toFixed(1)+'<br><b>1M:</b> '+mo.signal+' | RSI '+mo.rsi14.toFixed(1)+'<br><br><b>'+fazit+'</b>';
+   document.getElementById('ampel').innerHTML='<div style="background:'+af+';color:#000;border-radius:12px;padding:12px;text-align:center;font-weight:800">'+at+'</div>';
+ }
+ let lab=timeframe.toUpperCase();
+ let fibHtml='<div style="font-size:13px;color:#3b82f6;margin-bottom:6px"><b>🔵 FULL Fibo ('+letzteCandles.length+' Kerzen):</b></div>'; let order=['0','0.236','0.382','0.5','0.618','0.786','1','-0.272','-0.618'];
+ order.forEach(f=>{ if(fib[f]===undefined) return; let mark=Math.abs(fib[f]-preis)<Math.abs(diff)*0.05?'<span class="here">DU BIST HIER</span>':''; let isGolden=(f==='0.382'||f==='0.618')?' style="background:#f9731622"':''; fibHtml+='<div class="fibrow"'+isGolden+'><span>'+f+' Fib FULL ('+lab+')'+(f==='0.618'?' ⭐ Golden':f==='0.382'?' ⭐ Golden':'')+'</span><span><b>'+fib[f].toFixed(st)+' $</b> '+mark+'</span></div>'; });
+ document.getElementById('fibListe').innerHTML=fibHtml;
+ document.getElementById('ergebnis').innerHTML='<div class="card"><div style="text-align:center;font-size:13px;color:#aaa">'+lab+' - '+coin+' - RSI '+rsiBitrue.toFixed(1)+' | 🧠 Score '+score+'/100 | 👉 '+ls+' | 🌍 BTC.D '+btcDominanz.toFixed(2)+'% | ALT.D '+altDominanz.toFixed(2)+'%</div><div class="big '+farbe+'">'+preis.toFixed(st)+' $</div><div style="text-align:center">'+badge+' '+signal+'</div><div class="block-box" style="background:'+finaleFarbe+';color:#000;margin-top:10px">'+finaleEntscheidung+' - '+ls+'</div><div style="text-align:center;margin-top:8px;font-size:13px;color:#aaa">'+begruendung+'</div><div style="text-align:center;margin-top:8px">Gewinn: '+((preis-einstieg)/einstieg*100).toFixed(2)+' %</div></div>';
+ document.getElementById('tagesAnalyse').innerHTML= '<div class="block-box" style="background:'+finaleFarbe+';color:#000">'+finaleEntscheidung+' | 👉 '+ls+' | 🧠 Score '+score+'/100</div>'+ '<div style="margin-bottom:10px"><b>👉 LONG / SHORT:</b> '+ls+'<br>Eintritt: '+lsEntry.toFixed(st)+' $ | Stop: '+lsStop.toFixed(st)+' $ | Ziel: '+lsTarget.toFixed(st)+' $</div>'+ '<div style="margin-bottom:10px"><b>🧠 Score:</b> '+score+'/100</div>'+ '<div style="margin-bottom:10px"><b>🌍 Dominanz:</b><br>'+domFazit+'</div>'+ '<div style="margin-bottom:10px"><b>💵 USDT:</b><br>'+usdtFazit+'<br>'+usdtBtcFazit+'</div>'+ '<div style="margin-bottom:10px"><b>🌊 Elliott:</b><br>'+elliottFazit+'</div>'+ '<div style="margin-bottom:10px"><b>🔤 ABC:</b><br>'+abcFazit+'</div>'+ '<div style="margin-bottom:10px"><b>🔥 Smart Money:</b><br>'+sweepSignal+'<br>'+fvgSignal+'</div>'+ '<div style="margin-bottom:10px"><b>💰 Funding:</b><br>'+fundingRate.toFixed(4)+' % - '+fundingSignal+'</div>'+ '<div style="margin-bottom:10px"><b>📐 FULL Fibo:</b><br>'+hochFibo.toFixed(st)+' $ / '+tiefFibo.toFixed(st)+' $</div>'+ '<div style="margin-bottom:10px"><b>2. 5-Zeiten:</b><br>'+dreiZeitenFazit+'</div>'+ '<div style="margin-bottom:10px"><b>3. Divergenz:</b><br>'+divFazit+'</div>'+ '<div style="margin-bottom:10px"><b>4. Volumen:</b><br>'+volFazit+'</div>'+ '<div style="margin-bottom:10px"><b>5. BTC:</b><br>'+btcFazit+'</div>';
+ let ellPlan = elliottData ? '<br>🌊 Elliott: '+elliottData.welle+' | W3: '+elliottData.zielW3.toFixed(st)+' $ | W5: '+elliottData.zielW5_1618.toFixed(st)+' $' : '';
+ let abcPlan = abcData ? '<br>🔤 ABC-Ziel C: 1.0 = '+abcData.zielC_100.toFixed(st)+' $ | 1.618 = '+abcData.zielC_1618.toFixed(st)+' $' : '';
+ let domPlan = '<br>🌍 BTC.D: '+btcDominanz.toFixed(2)+'% | ETH.D: '+ethDominanz.toFixed(2)+'% | USDT.D: '+usdtDominanz.toFixed(2)+'% | ALT.D: '+altDominanz.toFixed(2)+'% → '+altSignal;
+ document.getElementById('tradingPlan').innerHTML='<div class="plan"><b>Plan ('+lab+') - '+coin+' - '+ls+' - Score '+score+'/100:</b><br>'+begruendung+'<br><br>🎯 Eintritt: '+lsEntry.toFixed(st)+' $<br>🛑 Stop: '+lsStop.toFixed(st)+' $<br>✅ Ziel: '+lsTarget.toFixed(st)+' $<br><br>✅ Teilverkauf 1 bei '+fib['0.786'].toFixed(st)+' $ → 50% raus<br>✅ Teilverkauf 2 bei '+fib['0.618'].toFixed(st)+' $ → Rest raus'+ellPlan+abcPlan+domPlan+'</div>';
+}
+ladeWerte(); updateTfInfo(); countdownSek=30*60; startCountdown();
+document.getElementById('rsi14').value=28.50; document.getElementById('rsiBitrue').value=36.82;
+berechnen(); updateTV(); holeECHTEN_RSI(); holeBTCCheck(); holeMarktDominanz();
+</script>
+</body>
+</html>
